@@ -120,7 +120,7 @@ class MigrateFromSqlite
 
             $months = $sqlite->query('SELECT * FROM budget_months ORDER BY sort_order')->fetchAll();
             $monthStmt = $mysql->prepare(
-                'INSERT INTO budget_months (id, user_id, year_month, sort_order, opening_balance, imported_balance, collapsed)
+                'INSERT INTO budget_months (`id`, `user_id`, `year_month`, `sort_order`, `opening_balance`, `imported_balance`, `collapsed`)
                  VALUES (:id, :uid, :ym, :so, :ob, :ib, :col)',
             );
             $insertedMonthIds = [];
@@ -139,7 +139,7 @@ class MigrateFromSqlite
 
             $accounts = $sqlite->query('SELECT * FROM accounts ORDER BY sort_order')->fetchAll();
             $accStmt = $mysql->prepare(
-                'INSERT INTO accounts (id, user_id, name, type, color, icon, initial_balance, credit_limit, status, is_active, sort_order, created_at, updated_at)
+                'INSERT INTO accounts (`id`, `user_id`, `name`, `type`, `color`, `icon`, `initial_balance`, `credit_limit`, `status`, `is_active`, `sort_order`, `created_at`, `updated_at`)
                  VALUES (:id, :uid, :name, :type, :color, :icon, :ib, :cl, :st, :ia, :so, :ca, :ua)',
             );
             foreach ($accounts as $a) {
@@ -162,7 +162,7 @@ class MigrateFromSqlite
 
             $categories = $sqlite->query('SELECT * FROM categories ORDER BY sort_order')->fetchAll();
             $catStmt = $mysql->prepare(
-                'INSERT INTO categories (id, user_id, name, type, color, icon, monthly_limit, is_active, sort_order, created_at, updated_at)
+                'INSERT INTO categories (`id`, `user_id`, `name`, `type`, `color`, `icon`, `monthly_limit`, `is_active`, `sort_order`, `created_at`, `updated_at`)
                  VALUES (:id, :uid, :name, :type, :color, :icon, :ml, :ia, :so, :ca, :ua)',
             );
             foreach ($categories as $c) {

@@ -72,7 +72,7 @@ function seedUserDefaults(PDO $pdo, string $userId): void
 {
     $accounts = json_decode(file_get_contents(__DIR__ . '/seed-accounts.json'), true);
     $stmtAcc = $pdo->prepare(
-        'INSERT INTO accounts (id, user_id, name, type, color, icon, initial_balance, credit_limit, status, is_active, sort_order)
+        'INSERT INTO accounts (`id`, `user_id`, `name`, `type`, `color`, `icon`, `initial_balance`, `credit_limit`, `status`, `is_active`, `sort_order`)
          VALUES (:id, :uid, :name, :type, :color, :icon, :ib, :cl, :st, :ia, :so)',
     );
     foreach ($accounts as $a) {
@@ -99,7 +99,7 @@ function seedUserDefaults(PDO $pdo, string $userId): void
 
     $categories = json_decode(file_get_contents(__DIR__ . '/seed-categories.json'), true);
     $stmtCat = $pdo->prepare(
-        'INSERT INTO categories (id, user_id, name, type, color, icon, monthly_limit, is_active, sort_order)
+        'INSERT INTO categories (`id`, `user_id`, `name`, `type`, `color`, `icon`, `monthly_limit`, `is_active`, `sort_order`)
          VALUES (:id, :uid, :name, :type, :color, :icon, :ml, :ia, :so)',
     );
     foreach ($categories as $c) {

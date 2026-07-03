@@ -260,7 +260,7 @@ if (preg_match('#^/accounts/([^/]+)$#', $uri, $m) && $method === 'DELETE') {
 
     $pdo->prepare(
 
-        'UPDATE accounts SET status = \'closed\', is_active = 0, updated_at = CURRENT_TIMESTAMP WHERE id = :id AND user_id = :uid',
+        'UPDATE accounts SET `status` = \'closed\', is_active = 0, updated_at = CURRENT_TIMESTAMP WHERE id = :id AND user_id = :uid',
 
     )->execute(['id' => $m[1], 'uid' => $userId]);
 
@@ -420,7 +420,7 @@ if ($uri === '/months' && $method === 'GET') {
 
         $stmt = $pdo->prepare(
 
-            'SELECT * FROM budget_months WHERE user_id = :uid AND year_month LIKE :y ORDER BY sort_order',
+            'SELECT * FROM budget_months WHERE user_id = :uid AND `year_month` LIKE :y ORDER BY sort_order',
 
         );
 

@@ -145,7 +145,7 @@ function ensureBudgetMonth(PDO $pdo, Database $db, string $userId, string $yearM
     if (!preg_match('/^\d{4}-\d{2}$/', $yearMonth)) {
         jsonError('Invalid yearMonth');
     }
-    $stmt = $pdo->prepare('SELECT * FROM budget_months WHERE user_id = :uid AND year_month = :ym');
+    $stmt = $pdo->prepare('SELECT * FROM budget_months WHERE user_id = :uid AND `year_month` = :ym');
     $stmt->execute(['uid' => $userId, 'ym' => $yearMonth]);
     $row = $stmt->fetch();
     if ($row) {
@@ -156,7 +156,7 @@ function ensureBudgetMonth(PDO $pdo, Database $db, string $userId, string $yearM
     $maxSort = (int) $maxStmt->fetchColumn();
     $id = $db->uuid();
     $pdo->prepare(
-        'INSERT INTO budget_months (id, user_id, year_month, sort_order, opening_balance, imported_balance, collapsed)
+        'INSERT INTO budget_months (`id`, `user_id`, `year_month`, `sort_order`, `opening_balance`, `imported_balance`, `collapsed`)
          VALUES (:id, :uid, :ym, :so, NULL, NULL, 1)',
     )->execute([
         'id' => $id,
