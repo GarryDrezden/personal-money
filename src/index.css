@@ -489,7 +489,7 @@ body {
 
 @media (min-width: 1024px) {
   .quick-entry-details {
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(2, 1fr);
   }
 }
 
@@ -545,12 +545,81 @@ body {
   min-width: 10rem;
 }
 
+/* Ledger top: quick entry + search side by side */
+.ledger-top-grid {
+  display: grid;
+  gap: 1rem;
+  align-items: start;
+}
+
+@media (min-width: 1024px) {
+  .ledger-top-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+/* Ledger search input */
+.ledger-search-input-wrap {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  width: 100%;
+  border-radius: 0.5rem;
+  border: 1px solid var(--app-border);
+  background: var(--app-bg-soft);
+  padding: 0 0.75rem;
+  transition: border-color 0.15s;
+}
+
+.ledger-search-input-wrap:focus-within {
+  border-color: var(--app-primary);
+}
+
+.ledger-search-icon {
+  flex-shrink: 0;
+  color: var(--app-text-muted);
+}
+
+.ledger-search-input {
+  flex: 1;
+  min-width: 0;
+  border: none;
+  background: transparent;
+  padding: 0.625rem 0;
+  font-size: 0.875rem;
+  color: var(--app-text);
+  outline: none;
+}
+
+.ledger-search-input::placeholder {
+  color: var(--app-text-muted);
+  opacity: 0.85;
+}
+
+.ledger-search-clear {
+  flex-shrink: 0;
+  width: 1.25rem;
+  height: 1.25rem;
+  border-radius: 9999px;
+  font-size: 1rem;
+  line-height: 1;
+  color: var(--app-text-muted);
+  transition: color 0.15s, background 0.15s;
+}
+
+.ledger-search-clear:hover {
+  color: var(--app-text);
+  background: var(--app-primary-soft);
+}
+
 /* Ledger filters */
 .ledger-filters {
   border-radius: 1rem;
   border: 1px solid var(--app-border);
   background: var(--app-card);
   overflow: hidden;
+  box-shadow: var(--app-shadow);
+  height: 100%;
 }
 
 .ledger-filters-toggle {
@@ -582,7 +651,7 @@ body {
 }
 
 .ledger-filters-search {
-  padding: 0.75rem 1rem 0;
+  padding: 1rem 1rem 0.75rem;
 }
 
 .ledger-filters-grid {
@@ -595,12 +664,6 @@ body {
 @media (min-width: 640px) {
   .ledger-filters-grid {
     grid-template-columns: repeat(2, 1fr);
-  }
-}
-
-@media (min-width: 1024px) {
-  .ledger-filters-grid {
-    grid-template-columns: repeat(4, 1fr);
   }
 }
 

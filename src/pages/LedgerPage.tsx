@@ -90,8 +90,12 @@ export function LedgerPage() {
           subtitle="Записывайте траты за пару секунд — сумма, название и Enter"
         />
 
-        {activeMonthId && <QuickTransactionForm monthId={activeMonthId} />}
-        <LedgerFilters />
+        {activeMonthId && (
+          <div className="ledger-top-grid">
+            <QuickTransactionForm monthId={activeMonthId} />
+            <LedgerFilters />
+          </div>
+        )}
         <LedgerFilterChips />
 
         <div className="space-y-2">

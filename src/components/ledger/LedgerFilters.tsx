@@ -17,7 +17,6 @@ const OP_TYPES = [
 
 function countActiveFilters(filters: typeof DEFAULT_LEDGER_FILTERS): number {
   let n = 0;
-  if (filters.search.trim()) n++;
   if (filters.accountId) n++;
   if (filters.categoryId) n++;
   if (filters.incomeCategoryId) n++;
@@ -35,6 +34,7 @@ export function LedgerFilters() {
   const [open, setOpen] = useState(false);
 
   const activeCount = useMemo(() => countActiveFilters(filters), [filters]);
+  const hasSearch = filters.search.trim().length > 0;
 
   const setIncomeOnly = (checked: boolean) => {
     setLedgerFilters({
@@ -57,17 +57,24 @@ export function LedgerFilters() {
       <div className="ledger-filters-search">
         <label className="quick-entry-field">
           <span className="quick-entry-label">Поиск в журнале</span>
-          <div className="relative">
-            <Search
-              size={16}
-              className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-[var(--app-text-muted)]"
-            />
+          <div className="ledger-search-input-wrap">
+            <Search size={16} className="ledger-search-icon" aria-hidden />
             <input
-              className="money-input pl-9"
+              className="ledger-search-input"
               value={filters.search}
               onChange={(e) => setLedgerFilters({ search: e.target.value })}
               placeholder="Название, источник, заметка…"
             />
+            {hasSearch && (
+              <button
+                type="button"
+                className="ledger-search-clear"
+                onClick={() => setLedgerFilters({ search: '' })}
+                aria-label="Очистить поиск"
+              >
+                ×
+              </button>
+            )}
           </div>
         </label>
       </div>
@@ -182,7 +189,7 @@ export function LedgerFilters() {
               />
               Только доходы
             </label>
-            {activeCount > 0 && (
+            {(activeCount > 0 || hasSearch) && (
               <button
                 type="button"
                 className="text-xs font-medium text-[var(--app-primary)] hover:underline"

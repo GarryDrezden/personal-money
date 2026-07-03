@@ -437,7 +437,7 @@ export function QuickTransactionForm({ monthId, compact = false }: QuickTransact
   }
 
   return (
-    <div className="quick-entry sticky top-0 z-10">
+    <div className="quick-entry">
       <div className="quick-entry-header">
         <div>
           <h2 className="quick-entry-title">Новая запись</h2>
