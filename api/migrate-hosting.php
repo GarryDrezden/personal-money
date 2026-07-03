@@ -11,19 +11,46 @@
 
 declare(strict_types=1);
 
+ob_start();
+
 $configPath = __DIR__ . '/config.php';
 if (!is_readable($configPath)) {
+    ob_end_clean();
     http_response_code(500);
     exit('Create api/config.php first (see config.example.php)');
 }
 
 $config = require $configPath;
+ob_end_clean();
+
+if (!is_array($config)) {
+    http_response_code(500);
+    header('Content-Type: text/plain; charset=utf-8');
+    exit(
+        "config.php must RETURN an array, not print it.\n\n"
+        . "Correct format:\n"
+        . "<?php\n"
+        . "return [\n"
+        . "  'DB_DRIVER' => 'mysql',\n"
+        . "  ...\n"
+        . "  'MIGRATE_SECRET' => 'MySecret2026',\n"
+        . "];\n"
+    );
+}
+
 $secret = (string) ($config['MIGRATE_SECRET'] ?? '');
 $key = (string) ($_GET['key'] ?? $_POST['key'] ?? '');
 
-if ($secret === '' || !hash_equals($secret, $key)) {
+if ($secret === '') {
     http_response_code(403);
-    exit('Forbidden. Set MIGRATE_SECRET in config.php and open ?key=...');
+    header('Content-Type: text/plain; charset=utf-8');
+    exit('Add MIGRATE_SECRET to api/config.php (same value as ?key= in URL).');
+}
+
+if (!hash_equals($secret, $key)) {
+    http_response_code(403);
+    header('Content-Type: text/plain; charset=utf-8');
+    exit('Wrong key. URL must be: migrate-hosting.php?key=YOUR_MIGRATE_SECRET');
 }
 
 if (($config['DB_DRIVER'] ?? '') !== 'mysql') {
