@@ -12,17 +12,17 @@ import { MoneyInput } from '../shared/MoneyInput';
 const SIMPLE_TYPES: { id: QuickFormPrefs['operationType']; label: string }[] = [
   { id: 'expense', label: 'Расход' },
   { id: 'income', label: 'Доход' },
+  { id: 'transfer', label: 'Перевод' },
 ];
 
 const ADVANCED_TYPES: { id: QuickFormPrefs['operationType']; label: string }[] = [
-  { id: 'transfer', label: 'Перевод' },
   { id: 'debt_payment', label: 'Кредит' },
   { id: 'credit_card_payment', label: 'Кредитка' },
   { id: 'correction', label: 'Коррекция' },
 ];
 
 function isSimpleType(type: QuickFormPrefs['operationType']): boolean {
-  return type === 'expense' || type === 'income';
+  return type === 'expense' || type === 'income' || type === 'transfer';
 }
 
 interface QuickTransactionFormProps {
@@ -274,7 +274,13 @@ export function QuickTransactionForm({ monthId, compact = false }: QuickTransact
             value={name}
             onChange={(e) => setName(e.target.value)}
             onKeyDown={onKeyDown}
-            placeholder={opType === 'income' ? 'Источник дохода' : 'Магазин, услуга…'}
+            placeholder={
+              opType === 'income'
+                ? 'Источник дохода'
+                : opType === 'transfer'
+                  ? 'Комментарий (необяз.)'
+                  : 'Магазин, услуга…'
+            }
           />
           {showSuggestion && (
             <span className="mt-0.5 flex flex-wrap items-center gap-1.5">
