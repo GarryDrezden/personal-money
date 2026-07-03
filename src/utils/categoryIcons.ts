@@ -1,60 +1,9 @@
 import type { LucideIcon } from 'lucide-react';
-import {
-  ArrowLeftRight,
-  BadgeRussianRuble,
-  Banknote,
-  Bus,
-  Calendar,
-  Car,
-  CreditCard,
-  Gamepad2,
-  Gift,
-  Heart,
-  HeartPulse,
-  Home,
-  Landmark,
-  MoreHorizontal,
-  PartyPopper,
-  PawPrint,
-  PlusCircle,
-  RotateCcw,
-  Shirt,
-  ShoppingBag,
-  Tag,
-  Utensils,
-  Wallet,
-  Wine,
-  Wrench,
-} from 'lucide-react';
 import type { Category } from '../types';
+import { ICON_COMPONENTS, resolveIconComponent } from './icons';
 
-/** Иконки по slug из seed-categories.json */
-export const CATEGORY_ICON_COMPONENTS: Record<string, LucideIcon> = {
-  utensils: Utensils,
-  calendar: Calendar,
-  landmark: Landmark,
-  wine: Wine,
-  'more-horizontal': MoreHorizontal,
-  home: Home,
-  car: Car,
-  'heart-pulse': HeartPulse,
-  'paw-print': PawPrint,
-  'party-popper': PartyPopper,
-  'gamepad-2': Gamepad2,
-  'shopping-bag': ShoppingBag,
-  bus: Bus,
-  shirt: Shirt,
-  banknote: Banknote,
-  wallet: Wallet,
-  gift: Gift,
-  'rotate-ccw': RotateCcw,
-  heart: Heart,
-  'plus-circle': PlusCircle,
-  'arrow-left-right': ArrowLeftRight,
-  wrench: Wrench,
-  'credit-card': CreditCard,
-  'badge-ruble': BadgeRussianRuble,
-};
+/** @deprecated use ICON_COMPONENTS */
+export const CATEGORY_ICON_COMPONENTS = ICON_COMPONENTS;
 
 /** Fallback, если в БД icon = null */
 export const CATEGORY_ICON_BY_ID: Record<string, string> = {
@@ -108,9 +57,5 @@ export function resolveCategoryIconComponent(
     (legacyName ? LEGACY_EXCEL_ICON[legacyName] : undefined) ??
     (legacyName && CATEGORY_ICON_BY_ID[legacyName] ? CATEGORY_ICON_BY_ID[legacyName] : undefined);
 
-  if (slug && CATEGORY_ICON_COMPONENTS[slug]) {
-    return CATEGORY_ICON_COMPONENTS[slug];
-  }
-
-  return Tag;
+  return resolveIconComponent(slug);
 }

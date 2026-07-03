@@ -5,6 +5,7 @@ import { DashboardPage } from './pages/DashboardPage';
 import { LedgerPage } from './pages/LedgerPage';
 import { AnalyticsPage } from './pages/AnalyticsPage';
 import { SettingsPage } from './pages/SettingsPage';
+import { FaqPage } from './pages/FaqPage';
 import { LoginPage } from './pages/LoginPage';
 import { RegisterPage } from './pages/RegisterPage';
 import { useBudgetStore } from './store/budgetStore';
@@ -52,6 +53,7 @@ function ProtectedApp() {
         <Route path="/ledger" element={<LedgerPage />} />
         <Route path="/analytics" element={<AnalyticsPage />} />
         <Route path="/settings" element={<SettingsPage />} />
+        <Route path="/faq" element={<FaqPage />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Route>
     </Routes>

@@ -92,7 +92,9 @@ interface BudgetState extends BudgetData {
   reconcileCreditCard: (monthId: string, targetAvailable: number) => Promise<void>;
   saveSettings: (patch: Partial<AppSettings>) => Promise<void>;
   saveAccount: (account: Partial<Account> & { id?: string }) => Promise<void>;
+  deleteAccount: (id: string) => Promise<void>;
   saveCategory: (category: Partial<Category> & { id?: string }) => Promise<void>;
+  deleteCategory: (id: string) => Promise<void>;
   importFile: (file: File, force?: boolean) => Promise<void>;
   ensureMonth: (yearMonth: string) => Promise<BudgetMonth>;
   resolveMonthIdForTxDate: (txDate: string | null | undefined, fallbackMonthId: string) => Promise<string>;
@@ -343,6 +345,16 @@ export const useBudgetStore = create<BudgetState>((set, get) => ({
     get().showToast('Счёт сохранён');
   },
 
+  deleteAccount: async (id) => {
+    await apiRepository.deleteAccount(id);
+    set({
+      accounts: get().accounts.map((a) =>
+        a.id === id ? { ...a, status: 'closed', isActive: false } : a,
+      ),
+    });
+    get().showToast('Счёт закрыт');
+  },
+
   saveCategory: async (category) => {
     const saved = await apiRepository.saveCategory(category);
     const categories = category.id
@@ -350,6 +362,14 @@ export const useBudgetStore = create<BudgetState>((set, get) => ({
       : [...get().categories, saved];
     set({ categories });
     get().showToast('Категория сохранена');
+  },
+
+  deleteCategory: async (id) => {
+    await apiRepository.deleteCategory(id);
+    set({
+      categories: get().categories.map((c) => (c.id === id ? { ...c, isActive: false } : c)),
+    });
+    get().showToast('Категория удалена');
   },
 
   importFile: async (file, force = false) => {
