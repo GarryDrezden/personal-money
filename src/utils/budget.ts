@@ -33,7 +33,7 @@ export {
   txAmount,
 };
 
-function toAmount(value: number | string | null | undefined): number {
+export function toAmount(value: number | string | null | undefined): number {
   if (value === null || value === undefined || value === '') return 0;
   const n = typeof value === 'number' ? value : Number(value);
   return Number.isFinite(n) ? n : 0;

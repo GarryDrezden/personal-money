@@ -31,6 +31,7 @@ import {
 } from '../utils/budget';
 import { formatYearMonth } from '../constants/categories';
 import { getPrimaryCreditAccount } from '../utils/accounts';
+import { AnalyticsInsightsPanel } from '../components/analytics/AnalyticsInsightsPanel';
 import { Card } from '../components/ui/Card';
 import { PageHeader } from '../components/ui/PageHeader';
 import { AccountSelect } from '../components/shared/AccountSelect';
@@ -155,7 +156,7 @@ export function AnalyticsPage() {
 
   return (
     <div className="space-y-6">
-      <PageHeader title="Аналитика" subtitle="Счета, категории, кредитка">
+      <PageHeader title="Аналитика" subtitle="Выводы, сравнения и графики по годам">
         <div className="flex flex-wrap gap-2">
           <label className="flex flex-col gap-1 text-sm">
             Год
@@ -175,6 +176,8 @@ export function AnalyticsPage() {
           </label>
         </div>
       </PageHeader>
+
+      <AnalyticsInsightsPanel />
 
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         <Card>

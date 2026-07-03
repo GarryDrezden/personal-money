@@ -928,3 +928,82 @@ body {
 .onboarding-btn-ghost:hover:not(:disabled) {
   color: var(--app-text);
 }
+
+/* Analytics insights */
+.analytics-comparison-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.75rem;
+}
+
+@media (min-width: 640px) {
+  .analytics-comparison-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 1024px) {
+  .analytics-comparison-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+.analytics-comparison-card {
+  padding: 0.875rem 1rem;
+  border-radius: 0.75rem;
+  border: 1px solid var(--app-border);
+  background: var(--app-bg-soft);
+}
+
+.analytics-forecast-badge {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.5rem 0.75rem;
+  border-radius: 9999px;
+  font-size: 0.8125rem;
+  background: var(--app-primary-soft);
+  color: var(--app-text);
+}
+
+.analytics-insight {
+  display: flex;
+  gap: 0.75rem;
+  padding: 0.875rem 1rem;
+  border-radius: 0.75rem;
+  border: 1px solid var(--app-border);
+  background: var(--app-bg-soft);
+}
+
+.analytics-insight-icon {
+  margin-top: 0.125rem;
+}
+
+.analytics-insight--info .analytics-insight-icon {
+  color: var(--app-secondary);
+}
+
+.analytics-insight--warning .analytics-insight-icon {
+  color: var(--app-warning);
+}
+
+.analytics-insight--danger .analytics-insight-icon {
+  color: var(--app-danger);
+}
+
+.analytics-insight--success .analytics-insight-icon {
+  color: var(--app-success);
+}
+
+.analytics-insight--warning {
+  border-color: color-mix(in srgb, var(--app-warning) 35%, var(--app-border));
+}
+
+.analytics-insight--danger {
+  border-color: color-mix(in srgb, var(--app-danger) 35%, var(--app-border));
+}
+
+.analytics-insight--success {
+  border-color: color-mix(in srgb, var(--app-success) 35%, var(--app-border));
+}
