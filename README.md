@@ -1,6 +1,25 @@
-# Personal Budget — локальный учёт расходов
+# Личный бюджет (Personal Budget)
 
-Локальный сайт на **http://127.0.0.1:8081** — React + PHP + SQLite, по образцу [personal-rpg](../personal-rpg).
+Веб-приложение для учёта расходов, счетов и категорий. **Prod:** http://where-is-the-money.ru/
+
+## Документация
+
+**Полная вики проекта:** [`docs/README.md`](./docs/README.md) — для разработки и внешнего аудита (GPT review).
+
+| Раздел | Файл |
+|--------|------|
+| Обзор продукта | [docs/01-product-overview.md](./docs/01-product-overview.md) |
+| Архитектура | [docs/02-tech-architecture.md](./docs/02-tech-architecture.md) |
+| БД и API | [docs/03-data-model-and-api.md](./docs/03-data-model-and-api.md) |
+| Frontend | [docs/04-frontend-structure.md](./docs/04-frontend-structure.md) |
+| Бизнес-правила | [docs/05-business-rules.md](./docs/05-business-rules.md) |
+| Инвентарь функций | [docs/06-features-inventory.md](./docs/06-features-inventory.md) |
+| Дизайн и UX | [docs/07-design-ux-theming.md](./docs/07-design-ux-theming.md) |
+| Деплой | [docs/08-deployment-operations.md](./docs/08-deployment-operations.md) |
+| История | [docs/09-development-history.md](./docs/09-development-history.md) |
+| Чеклист для ревью | [docs/10-review-checklist.md](./docs/10-review-checklist.md) |
+
+## Быстрый старт (локально)
 
 ## Быстрый старт
 
@@ -49,9 +68,16 @@ E:\Работа\OSPanel\domains\personal-budget\server\runtime\php\php.exe -S 12
 
 Не конфликтует с Personal RPG (:8080 / :9000).
 
+## Деплой на прод
+
+См. [DEPLOY.md](./DEPLOY.md) и [docs/08-deployment-operations.md](./docs/08-deployment-operations.md).
+
+Push в `main` → GitHub Actions → FTP на хостинг.
+
 ## Бэкап
 
-Настройки → «Скачать personal-budget.sqlite» или копия файла `data/personal-budget.sqlite`.
+- **Локально (SQLite):** Настройки → «Скачать бэкап» или `data/personal-budget.sqlite`
+- **Прод (MySQL):** phpMyAdmin export вручную
 
 ## Структура
 
