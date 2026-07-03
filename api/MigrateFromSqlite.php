@@ -100,8 +100,6 @@ class MigrateFromSqlite
                 'INSERT INTO users (id, username, password_hash) VALUES (:id, :u, :h)',
             )->execute(['id' => $userId, 'u' => $username, 'h' => $hash]);
 
-            $hasUserId = self::sqliteHasUserId($sqlite);
-
             $settingsRows = $sqlite->query('SELECT * FROM app_settings')->fetchAll();
             foreach ($settingsRows as $row) {
                 $mysql->prepare(
@@ -125,10 +123,8 @@ class MigrateFromSqlite
                 'INSERT INTO budget_months (id, user_id, year_month, sort_order, opening_balance, imported_balance, collapsed)
                  VALUES (:id, :uid, :ym, :so, :ob, :ib, :col)',
             );
+            $insertedMonthIds = [];
             foreach ($months as $m) {
-                if ($hasUserId && !empty($m['user_id']) && $m['user_id'] !== $userId) {
-                    continue;
-                }
                 $monthStmt->execute([
                     'id' => $m['id'],
                     'uid' => $userId,
@@ -138,6 +134,7 @@ class MigrateFromSqlite
                     'ib' => $m['imported_balance'],
                     'col' => $m['collapsed'],
                 ]);
+                $insertedMonthIds[] = $m['id'];
             }
 
             $accounts = $sqlite->query('SELECT * FROM accounts ORDER BY sort_order')->fetchAll();
@@ -146,9 +143,6 @@ class MigrateFromSqlite
                  VALUES (:id, :uid, :name, :type, :color, :icon, :ib, :cl, :st, :ia, :so, :ca, :ua)',
             );
             foreach ($accounts as $a) {
-                if ($hasUserId && !empty($a['user_id']) && $a['user_id'] !== $userId) {
-                    continue;
-                }
                 $accStmt->execute([
                     'id' => $a['id'],
                     'uid' => $userId,
@@ -172,9 +166,6 @@ class MigrateFromSqlite
                  VALUES (:id, :uid, :name, :type, :color, :icon, :ml, :ia, :so, :ca, :ua)',
             );
             foreach ($categories as $c) {
-                if ($hasUserId && !empty($c['user_id']) && $c['user_id'] !== $userId) {
-                    continue;
-                }
                 $catStmt->execute([
                     'id' => $c['id'],
                     'uid' => $userId,
@@ -190,7 +181,7 @@ class MigrateFromSqlite
                 ]);
             }
 
-            $monthIds = array_column($months, 'id');
+            $monthIds = $insertedMonthIds;
             if ($monthIds) {
                 $transactions = $sqlite->query('SELECT * FROM transactions ORDER BY month_id, sort_order')->fetchAll();
                 $txStmt = $mysql->prepare(
