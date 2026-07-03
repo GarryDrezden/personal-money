@@ -133,7 +133,7 @@ export function FaqPage() {
         <div>
           <h1 className="text-2xl font-bold">Справка</h1>
           <p className="text-sm text-[var(--app-text-muted)]">
-            Как пользоваться «Где деньги?» — Personal Budget
+            Как пользоваться «Личный бюджет»
           </p>
         </div>
       </div>

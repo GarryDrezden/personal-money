@@ -2,24 +2,24 @@
 
 :root,
 [data-theme='cozy'] {
-  --app-bg: #f8fafc;
-  --app-bg-soft: #ffffff;
-  --app-card: rgba(255, 255, 255, 0.92);
-  --app-card-strong: #ffffff;
-  --app-border: rgba(148, 163, 184, 0.22);
+  --app-bg: #ffd6e0;
+  --app-bg-soft: rgba(255, 255, 255, 0.94);
+  --app-card: rgba(255, 255, 255, 0.9);
+  --app-card-strong: rgba(255, 255, 255, 0.96);
+  --app-border: rgba(244, 114, 182, 0.28);
   --app-text: #0f172a;
   --app-text-muted: #64748b;
   --app-primary: #f59e0b;
   --app-primary-soft: #fef3c7;
-  --app-secondary: #8b5cf6;
+  --app-secondary: #ec4899;
   --app-success: #10b981;
   --app-danger: #f43f5e;
   --app-warning: #f97316;
-  --app-glow: rgba(245, 158, 11, 0.18);
-  --app-shadow: 0 18px 45px rgba(15, 23, 42, 0.08);
-  --app-nav-active-bg: #fffbeb;
-  --app-nav-active-text: #92400e;
-  --app-progress-track: #e7e5e4;
+  --app-glow: rgba(244, 114, 182, 0.2);
+  --app-shadow: 0 18px 45px rgba(244, 114, 182, 0.12);
+  --app-nav-active-bg: #fff0f5;
+  --app-nav-active-text: #be185d;
+  --app-progress-track: #fce7f3;
 }
 
 [data-theme='darkFantasy'] {
@@ -45,24 +45,24 @@
 
 /* legacy fallback */
 [data-theme='light'] {
-  --app-bg: #f8fafc;
-  --app-bg-soft: #ffffff;
-  --app-card: rgba(255, 255, 255, 0.92);
-  --app-card-strong: #ffffff;
-  --app-border: rgba(148, 163, 184, 0.22);
+  --app-bg: #ffd6e0;
+  --app-bg-soft: rgba(255, 255, 255, 0.94);
+  --app-card: rgba(255, 255, 255, 0.9);
+  --app-card-strong: rgba(255, 255, 255, 0.96);
+  --app-border: rgba(244, 114, 182, 0.28);
   --app-text: #0f172a;
   --app-text-muted: #64748b;
   --app-primary: #f59e0b;
   --app-primary-soft: #fef3c7;
-  --app-secondary: #8b5cf6;
+  --app-secondary: #ec4899;
   --app-success: #10b981;
   --app-danger: #f43f5e;
   --app-warning: #f97316;
-  --app-glow: rgba(245, 158, 11, 0.18);
-  --app-shadow: 0 18px 45px rgba(15, 23, 42, 0.08);
-  --app-nav-active-bg: #fffbeb;
-  --app-nav-active-text: #92400e;
-  --app-progress-track: #e7e5e4;
+  --app-glow: rgba(244, 114, 182, 0.2);
+  --app-shadow: 0 18px 45px rgba(244, 114, 182, 0.12);
+  --app-nav-active-bg: #fff0f5;
+  --app-nav-active-text: #be185d;
+  --app-progress-track: #fce7f3;
 }
 
 [data-theme='dark'] {
@@ -87,10 +87,19 @@
 }
 
 body {
-  background: var(--app-bg);
+  background-color: var(--app-bg);
   color: var(--app-text);
   @apply antialiased;
   font-family: system-ui, -apple-system, sans-serif;
+}
+
+[data-theme='cozy'] body,
+[data-theme='light'] body {
+  background-color: #ffd6e0;
+  background-image: url('/bg-hello-kitty.svg');
+  background-size: 240px 240px;
+  background-repeat: repeat;
+  background-attachment: fixed;
 }
 
 #root {

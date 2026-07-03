@@ -30,7 +30,7 @@ export function DashboardPage() {
   if (!summaries.length) {
     return (
       <div className="rounded-xl border border-[var(--app-border)] bg-[var(--app-card)] p-4">
-        <h1 className="text-2xl font-bold">Personal Budget</h1>
+        <h1 className="text-2xl font-bold">Личный бюджет</h1>
         <p className="mt-2 text-[var(--app-text-muted)]">
           Данные не импортированы. Перейдите в{' '}
           <Link to="/settings" className="text-[var(--app-primary)] underline">
