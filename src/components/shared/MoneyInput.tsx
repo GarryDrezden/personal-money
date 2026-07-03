@@ -8,6 +8,7 @@ interface MoneyInputProps {
   placeholder?: string;
   className?: string;
   onKeyDown?: (e: React.KeyboardEvent) => void;
+  disabled?: boolean;
 }
 
 export const MoneyInput = forwardRef<HTMLInputElement, MoneyInputProps>(function MoneyInput(
@@ -18,6 +19,7 @@ export const MoneyInput = forwardRef<HTMLInputElement, MoneyInputProps>(function
     placeholder = '0',
     className = 'money-input',
     onKeyDown,
+    disabled,
   },
   ref,
 ) {
@@ -28,6 +30,7 @@ export const MoneyInput = forwardRef<HTMLInputElement, MoneyInputProps>(function
       value={value}
       placeholder={placeholder}
       inputMode="decimal"
+      disabled={disabled}
       onChange={(e) => {
         onChange(e.target.value);
         onParsed?.(parseMoneyInput(e.target.value));
