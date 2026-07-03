@@ -153,7 +153,7 @@ export function TransactionTable({ transactions }: TransactionTableProps) {
       <div className="md:hidden">
         <TransactionCards transactions={transactions} />
         {transactions.length > 0 && (
-          <p className="mt-3 rounded-lg bg-[var(--app-primary-soft)] px-3 py-2 text-sm font-medium text-[var(--app-danger)]">
+          <p className="ledger-table-summary mt-3">
             {transactions.length} операций · расходы{' '}
             {formatMoney(transactions.reduce((s, t) => s + (t.expenseAmount ?? 0), 0))}
           </p>
@@ -187,15 +187,11 @@ export function TransactionTable({ transactions }: TransactionTableProps) {
             />
           ))}
         </tbody>
-        <tfoot>
-          <tr className="bg-[var(--app-primary-soft)] font-semibold">
-            <td colSpan={10} className="px-2 py-2 text-sm text-[var(--app-danger)]">
-              Показано: {transactions.length} · сумма расходов{' '}
-              {formatMoney(transactions.reduce((s, t) => s + (t.expenseAmount ?? 0), 0))}
-            </td>
-          </tr>
-        </tfoot>
       </table>
+        <div className="ledger-table-summary">
+          Показано: {transactions.length} · сумма расходов{' '}
+          {formatMoney(transactions.reduce((s, t) => s + (t.expenseAmount ?? 0), 0))}
+        </div>
       </div>
     </>
   );

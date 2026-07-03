@@ -237,6 +237,17 @@ body {
   vertical-align: middle;
 }
 
+.ledger-table-summary {
+  margin-top: 0.5rem;
+  padding: 0.625rem 1rem;
+  border-radius: 0.75rem;
+  background: var(--app-primary-soft);
+  text-align: center;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--app-danger);
+}
+
 .ledger-col-date {
   min-width: 8.5rem;
 }
