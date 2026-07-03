@@ -2,7 +2,7 @@
 
 :root,
 [data-theme='cozy'] {
-  --app-bg: #ffd6e0;
+  --app-bg: #ffe4ef;
   --app-bg-soft: rgba(255, 255, 255, 0.94);
   --app-card: rgba(255, 255, 255, 0.9);
   --app-card-strong: rgba(255, 255, 255, 0.96);
@@ -45,7 +45,7 @@
 
 /* legacy fallback */
 [data-theme='light'] {
-  --app-bg: #ffd6e0;
+  --app-bg: #ffe4ef;
   --app-bg-soft: rgba(255, 255, 255, 0.94);
   --app-card: rgba(255, 255, 255, 0.9);
   --app-card-strong: rgba(255, 255, 255, 0.96);
@@ -95,9 +95,9 @@ body {
 
 [data-theme='cozy'] body,
 [data-theme='light'] body {
-  background-color: #ffd6e0;
-  background-image: url('/bg-hello-kitty.svg');
-  background-size: 240px 240px;
+  background-color: #ffe4ef;
+  background-image: url('/bg-hello-kitty.png');
+  background-size: 512px auto;
   background-repeat: repeat;
   background-attachment: fixed;
 }
