@@ -42,9 +42,11 @@ export function DashboardPage() {
       </div>
 
       <FinancialPulse />
-      <QuickEntryWidget />
       <AccountCards />
-      <MonthCategoriesWidget />
+      <div className="ledger-top-grid">
+        <QuickEntryWidget />
+        <MonthCategoriesWidget />
+      </div>
       <RecentTransactions />
       <YearOverview />
     </div>

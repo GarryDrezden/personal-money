@@ -110,14 +110,14 @@ export function AccountCards() {
   );
 }
 
-export function MonthCategoriesWidget() {
+export function MonthCategoriesWidget({ className = '' }: { className?: string }) {
   const current = useCurrentMonthSummary();
   const items = useMonthCategorySummaries(current?.monthId ?? '');
 
   if (!current) return null;
 
   return (
-    <Card>
+    <Card className={`flex h-full flex-col ${className}`.trim()}>
       <div className="mb-3 flex items-center justify-between gap-2">
         <h2 className="font-semibold">Категории за месяц</h2>
         <Link to="/ledger" className="text-sm text-[var(--app-primary)]">
@@ -129,11 +129,11 @@ export function MonthCategoriesWidget() {
   );
 }
 
-export function QuickEntryWidget() {
+export function QuickEntryWidget({ className = '' }: { className?: string }) {
   const current = useCurrentMonthSummary();
   if (!current) return null;
   return (
-    <Card>
+    <Card className={`flex h-full flex-col ${className}`.trim()}>
       <h2 className="mb-3 font-semibold">Быстрый ввод</h2>
       <QuickTransactionForm monthId={current.monthId} compact />
     </Card>
