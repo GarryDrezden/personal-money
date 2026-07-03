@@ -64,6 +64,8 @@ interface ToastItem {
   id: string;
   message: string;
   type: 'success' | 'error';
+  actionLabel?: string;
+  onAction?: () => void | Promise<void>;
 }
 
 interface BudgetState extends BudgetData {
@@ -79,7 +81,11 @@ interface BudgetState extends BudgetData {
   setCollapsed: (monthId: string, collapsed: boolean) => void;
   setQuickForm: (patch: Partial<QuickFormPrefs>) => void;
   setLedgerFilters: (patch: Partial<LedgerFilters>) => void;
-  showToast: (message: string, type?: 'success' | 'error') => void;
+  showToast: (
+    message: string,
+    type?: 'success' | 'error',
+    options?: { actionLabel?: string; onAction?: () => void | Promise<void> },
+  ) => void;
   dismissToast: (id: string) => void;
   addTransaction: (monthId: string, kind: 'expense' | 'income' | 'both') => Promise<void>;
   createQuickTransaction: (monthId: string, payload: Partial<Transaction>) => Promise<void>;
@@ -207,10 +213,18 @@ export const useBudgetStore = create<BudgetState>((set, get) => ({
 
   setLedgerFilters: (patch) => set({ ledgerFilters: { ...get().ledgerFilters, ...patch } }),
 
-  showToast: (message, type = 'success') => {
+  showToast: (message, type = 'success', options) => {
     const id = crypto.randomUUID();
-    set({ toasts: [...get().toasts, { id, message, type }] });
-    setTimeout(() => get().dismissToast(id), 3000);
+    const toast: ToastItem = {
+      id,
+      message,
+      type,
+      actionLabel: options?.actionLabel,
+      onAction: options?.onAction,
+    };
+    set({ toasts: [...get().toasts, toast] });
+    const duration = options?.onAction ? 8000 : 3000;
+    setTimeout(() => get().dismissToast(id), duration);
   },
 
   dismissToast: (id) => set({ toasts: get().toasts.filter((t) => t.id !== id) }),
@@ -250,9 +264,22 @@ export const useBudgetStore = create<BudgetState>((set, get) => ({
   },
 
   removeTransaction: async (id) => {
+    const tx = get().transactions.find((t) => t.id === id);
+    if (!tx) return;
     await apiRepository.deleteTransaction(id);
     set(withTxIndex(get().transactions.filter((t) => t.id !== id), get().months));
-    get().showToast('Операция удалена');
+    const { id: _removedId, sortOrder: _sortOrder, ...restorePayload } = tx;
+    get().showToast('Операция удалена', 'success', {
+      actionLabel: 'Отменить',
+      onAction: async () => {
+        const restored = await apiRepository.createTransaction({
+          ...restorePayload,
+          monthId: tx.monthId,
+        });
+        set(withTxIndex([...get().transactions, restored], get().months));
+        get().showToast('Операция восстановлена');
+      },
+    });
   },
 
   duplicateTransaction: async (tx) => {

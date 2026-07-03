@@ -1,4 +1,4 @@
-import { memo, useCallback, useEffect, useState } from 'react';
+import { memo, useCallback } from 'react';
 import { Copy, Trash2 } from 'lucide-react';
 import type { Transaction } from '../../types';
 import { accountName, formatMoney, parseMoneyInput } from '../../utils/budget';
@@ -6,32 +6,10 @@ import { useBudgetStore } from '../../store/budgetStore';
 import { AccountSelect } from '../shared/AccountSelect';
 import { CategorySelect } from '../shared/CategorySelect';
 import { CategoryLabel } from '../shared/CategoryIcon';
+import { TX_KIND_LABELS, useDebouncedTransaction } from './useDebouncedTransaction';
+import { TransactionCards } from './TransactionCards';
 
-function useDebouncedSave(tx: Transaction, onSave: (tx: Transaction) => void, delay = 600) {
-  const [draft, setDraft] = useState(tx);
-
-  useEffect(() => {
-    setDraft(tx);
-  }, [tx]);
-
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      if (JSON.stringify(draft) !== JSON.stringify(tx)) onSave(draft);
-    }, delay);
-    return () => clearTimeout(timer);
-  }, [draft, tx, onSave, delay]);
-
-  return [draft, setDraft] as const;
-}
-
-const KIND_LABELS: Record<string, string> = {
-  regular: '—',
-  transfer: '⇄',
-  debt_payment: 'кредит',
-  credit_card_payment: 'кредитка',
-  correction: '±',
-};
-
+const KIND_LABELS = TX_KIND_LABELS;
 const TransactionRow = memo(function TransactionRow({
   tx,
   onSave,
@@ -44,7 +22,7 @@ const TransactionRow = memo(function TransactionRow({
   onDuplicate: (tx: Transaction) => void;
 }) {
   const accounts = useBudgetStore((s) => s.accounts);
-  const [draft, setDraft] = useDebouncedSave(tx, onSave);
+  const [draft, setDraft] = useDebouncedTransaction(tx, onSave);
 
   const title = draft.expenseName ?? draft.incomeSource ?? '';
   const amount =
@@ -163,9 +141,20 @@ export function TransactionTable({ transactions }: TransactionTableProps) {
   }
 
   return (
-    <div className="overflow-x-auto">
-      <table className="ledger-table w-full">
-        <thead>
+    <>
+      <div className="md:hidden">
+        <TransactionCards transactions={transactions} />
+        {transactions.length > 0 && (
+          <p className="mt-3 rounded-lg bg-[var(--app-primary-soft)] px-3 py-2 text-sm font-medium text-[var(--app-danger)]">
+            {transactions.length} операций · расходы{' '}
+            {formatMoney(transactions.reduce((s, t) => s + (t.expenseAmount ?? 0), 0))}
+          </p>
+        )}
+      </div>
+
+      <div className="hidden overflow-x-auto md:block">
+        <table className="ledger-table w-full">
+          <thead>
           <tr>
             <th className="ledger-col-date">Дата</th>
             <th className="ledger-col-name">Название</th>
@@ -199,6 +188,7 @@ export function TransactionTable({ transactions }: TransactionTableProps) {
           </tr>
         </tfoot>
       </table>
-    </div>
+      </div>
+    </>
   );
 }

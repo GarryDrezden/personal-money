@@ -1007,3 +1007,114 @@ body {
 .analytics-insight--success {
   border-color: color-mix(in srgb, var(--app-success) 35%, var(--app-border));
 }
+
+/* Quick add FAB */
+.quick-add-fab {
+  position: fixed;
+  right: 1rem;
+  bottom: 5.5rem;
+  z-index: 90;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 3.5rem;
+  height: 3.5rem;
+  border-radius: 9999px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+  transition: transform 0.15s, filter 0.15s;
+}
+
+@media (min-width: 768px) {
+  .quick-add-fab {
+    bottom: 1.5rem;
+  }
+}
+
+.quick-add-fab:hover:not(:disabled) {
+  transform: scale(1.05);
+}
+
+.quick-add-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 550;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding: 1rem;
+  background: rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+}
+
+@media (min-width: 640px) {
+  .quick-add-overlay {
+    align-items: center;
+  }
+}
+
+.quick-add-sheet {
+  width: 100%;
+  max-width: 28rem;
+  max-height: 90vh;
+  overflow-y: auto;
+  border-radius: 1rem 1rem 0 0;
+  border: 1px solid var(--app-border);
+  background: var(--app-card-strong);
+  padding: 1.25rem;
+  box-shadow: var(--app-shadow);
+}
+
+@media (min-width: 640px) {
+  .quick-add-sheet {
+    border-radius: 1rem;
+  }
+}
+
+.quick-add-sheet-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+/* Ledger transaction cards (mobile) */
+.ledger-tx-card {
+  border-radius: 0.75rem;
+  border: 1px solid var(--app-border);
+  background: var(--app-bg-soft);
+  padding: 0.875rem;
+}
+
+.ledger-tx-card-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.ledger-tx-card-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-top: 0.625rem;
+}
+
+.ledger-tx-card-fields {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.5rem;
+  margin-top: 0.625rem;
+}
+
+.ledger-tx-card-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-top: 0.625rem;
+  padding-top: 0.625rem;
+  border-top: 1px solid var(--app-border);
+}

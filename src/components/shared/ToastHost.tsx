@@ -12,14 +12,34 @@ export function ToastHost() {
         <div
           key={t.id}
           role="alert"
-          className={`cursor-pointer rounded-lg px-4 py-2 text-sm shadow-lg ${
+          className={`flex items-center gap-3 rounded-lg px-4 py-2 text-sm shadow-lg ${
             t.type === 'error'
               ? 'bg-[var(--app-danger)] text-white'
               : 'bg-[var(--app-success)] text-white'
           }`}
-          onClick={() => dismissToast(t.id)}
         >
-          {t.message}
+          <span className="flex-1">{t.message}</span>
+          {t.actionLabel && t.onAction && (
+            <button
+              type="button"
+              className="shrink-0 rounded-md bg-white/20 px-2 py-1 text-xs font-semibold hover:bg-white/30"
+              onClick={() => {
+                void t.onAction?.();
+                dismissToast(t.id);
+              }}
+            >
+              {t.actionLabel}
+            </button>
+          )}
+          {!t.actionLabel && (
+            <button
+              type="button"
+              className="sr-only"
+              onClick={() => dismissToast(t.id)}
+            >
+              Закрыть
+            </button>
+          )}
         </div>
       ))}
     </div>
