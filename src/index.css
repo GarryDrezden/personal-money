@@ -1,0 +1,175 @@
+@import "tailwindcss";
+
+:root,
+[data-theme='cozy'] {
+  --app-bg: #f8fafc;
+  --app-bg-soft: #ffffff;
+  --app-card: rgba(255, 255, 255, 0.92);
+  --app-card-strong: #ffffff;
+  --app-border: rgba(148, 163, 184, 0.22);
+  --app-text: #0f172a;
+  --app-text-muted: #64748b;
+  --app-primary: #f59e0b;
+  --app-primary-soft: #fef3c7;
+  --app-secondary: #8b5cf6;
+  --app-success: #10b981;
+  --app-danger: #f43f5e;
+  --app-warning: #f97316;
+  --app-glow: rgba(245, 158, 11, 0.18);
+  --app-shadow: 0 18px 45px rgba(15, 23, 42, 0.08);
+  --app-nav-active-bg: #fffbeb;
+  --app-nav-active-text: #92400e;
+  --app-progress-track: #e7e5e4;
+}
+
+[data-theme='darkFantasy'] {
+  --app-bg: #090812;
+  --app-bg-soft: #111022;
+  --app-card: rgba(24, 20, 44, 0.82);
+  --app-card-strong: #171329;
+  --app-border: rgba(196, 181, 253, 0.18);
+  --app-text: #f8fafc;
+  --app-text-muted: #b8b5d6;
+  --app-primary: #facc15;
+  --app-primary-soft: rgba(250, 204, 21, 0.14);
+  --app-secondary: #a78bfa;
+  --app-success: #34d399;
+  --app-danger: #fb7185;
+  --app-warning: #fb923c;
+  --app-glow: rgba(167, 139, 250, 0.28);
+  --app-shadow: 0 24px 70px rgba(0, 0, 0, 0.42);
+  --app-nav-active-bg: rgba(124, 58, 237, 0.22);
+  --app-nav-active-text: #fde68a;
+  --app-progress-track: rgba(148, 163, 184, 0.18);
+}
+
+/* legacy fallback */
+[data-theme='light'] {
+  --app-bg: #f8fafc;
+  --app-bg-soft: #ffffff;
+  --app-card: rgba(255, 255, 255, 0.92);
+  --app-card-strong: #ffffff;
+  --app-border: rgba(148, 163, 184, 0.22);
+  --app-text: #0f172a;
+  --app-text-muted: #64748b;
+  --app-primary: #f59e0b;
+  --app-primary-soft: #fef3c7;
+  --app-secondary: #8b5cf6;
+  --app-success: #10b981;
+  --app-danger: #f43f5e;
+  --app-warning: #f97316;
+  --app-glow: rgba(245, 158, 11, 0.18);
+  --app-shadow: 0 18px 45px rgba(15, 23, 42, 0.08);
+  --app-nav-active-bg: #fffbeb;
+  --app-nav-active-text: #92400e;
+  --app-progress-track: #e7e5e4;
+}
+
+[data-theme='dark'] {
+  --app-bg: #090812;
+  --app-bg-soft: #111022;
+  --app-card: rgba(24, 20, 44, 0.82);
+  --app-card-strong: #171329;
+  --app-border: rgba(196, 181, 253, 0.18);
+  --app-text: #f8fafc;
+  --app-text-muted: #b8b5d6;
+  --app-primary: #facc15;
+  --app-primary-soft: rgba(250, 204, 21, 0.14);
+  --app-secondary: #a78bfa;
+  --app-success: #34d399;
+  --app-danger: #fb7185;
+  --app-warning: #fb923c;
+  --app-glow: rgba(167, 139, 250, 0.28);
+  --app-shadow: 0 24px 70px rgba(0, 0, 0, 0.42);
+  --app-nav-active-bg: rgba(124, 58, 237, 0.22);
+  --app-nav-active-text: #fde68a;
+  --app-progress-track: rgba(148, 163, 184, 0.18);
+}
+
+body {
+  background: var(--app-bg);
+  color: var(--app-text);
+  @apply antialiased;
+  font-family: system-ui, -apple-system, sans-serif;
+}
+
+#root {
+  @apply min-h-screen;
+}
+
+.nav-link-active {
+  background: var(--app-nav-active-bg);
+  color: var(--app-nav-active-text);
+}
+
+.money-input {
+  width: 100%;
+  border-radius: 0.5rem;
+  border: 1px solid var(--app-border);
+  background: var(--app-bg-soft);
+  padding: 0.375rem 0.5rem;
+  font-size: 0.875rem;
+  color: var(--app-text);
+  outline: none;
+}
+
+.money-input:focus {
+  border-color: var(--app-primary);
+}
+
+.ledger-table input,
+.ledger-table select {
+  width: 100%;
+  border-radius: 0.5rem;
+  border: 1px solid var(--app-border);
+  background: var(--app-bg-soft);
+  padding: 0.375rem 0.5rem;
+  font-size: 0.875rem;
+  color: var(--app-text);
+  outline: none;
+}
+
+.ledger-table th {
+  text-align: left;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--app-text-muted);
+  padding: 0.5rem;
+}
+
+.ledger-table td {
+  padding: 0.25rem 0.5rem;
+  vertical-align: middle;
+}
+
+.ledger-col-date {
+  min-width: 8.5rem;
+}
+
+.ledger-col-name {
+  min-width: 16rem;
+  width: 28%;
+}
+
+.ledger-col-amount {
+  min-width: 5.5rem;
+  width: 5.5rem;
+}
+
+.ledger-col-account {
+  min-width: 11rem;
+  width: 12%;
+}
+
+.ledger-col-category {
+  min-width: 10rem;
+  width: 11%;
+}
+
+.ledger-table .ledger-account-select {
+  min-width: 11rem;
+}
+
+.rpg-victory { color: var(--app-success); }
+.rpg-danger { color: var(--app-danger); }
+.rpg-neutral { color: var(--app-text-muted); }

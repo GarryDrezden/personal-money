@@ -1,0 +1,12 @@
+[
+  { "keywords": ["пятерочка", "пятёрочка", "дикси", "магнит", "ашан", "лента", "вкусвилл", "перекресток", "перекрёсток", "глобус", "metro", "spar"], "categoryId": "food" },
+  { "keywords": ["ozon", "озон", "wildberries", "вайлдберриз", "яндекс маркет", "market"], "categoryId": "marketplace" },
+  { "keywords": ["ggsel", "steam", "ps store", "playstation", "xbox"], "categoryId": "games" },
+  { "keywords": ["аптека", "здрав", "горздрав", "rigla"], "categoryId": "health" },
+  { "keywords": ["азс", "лукойл", "газпром", "роснефть", "бензин", "shell"], "categoryId": "car" },
+  { "keywords": ["вино", "пиво", "красное белое", "винлаб", "kb", "алкоголь"], "categoryId": "alcohol" },
+  { "keywords": ["кредит", "ипотека", "банк", "сбер кредит", "тиньков машина"], "categoryId": "credits" },
+  { "keywords": ["мосэнерго", "мегафон", "бизби", "интернет", "жкх"], "categoryId": "monthly" },
+  { "keywords": ["стануша"], "categoryId": "stanusha" },
+  { "keywords": ["контур", "дикси", "зарплат"], "categoryId": "salary" }
+]

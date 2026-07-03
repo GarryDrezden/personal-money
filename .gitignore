@@ -1,0 +1,11 @@
+node_modules/
+dist/
+data/
+server/runtime/
+.env
+*.log
+.DS_Store
+__pycache__/
+*.pyc
+api/vendor/
+api/config.php
