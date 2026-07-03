@@ -152,7 +152,7 @@ if ($uri === '/accounts' && $method === 'POST') {
 
     $pdo->prepare(
 
-        'INSERT INTO accounts (id, user_id, name, type, color, icon, initial_balance, credit_limit, status, is_active, sort_order)
+        'INSERT INTO accounts (`id`, `user_id`, `name`, `type`, `color`, `icon`, `initial_balance`, `credit_limit`, `status`, `is_active`, `sort_order`)
 
          VALUES (:id, :uid, :name, :type, :color, :icon, :ib, :cl, :st, :ia, :so)',
 
@@ -206,9 +206,9 @@ if (preg_match('#^/accounts/([^/]+)$#', $uri, $m) && $method === 'PUT') {
 
     $pdo->prepare(
 
-        'UPDATE accounts SET name=:name, type=:type, color=:color, icon=:icon,
+        'UPDATE accounts SET name=:name, `type`=:type, color=:color, icon=:icon,
 
-         initial_balance=:ib, credit_limit=:cl, status=:st, is_active=:ia, sort_order=:so,
+         initial_balance=:ib, credit_limit=:cl, `status`=:st, is_active=:ia, sort_order=:so,
 
          updated_at=CURRENT_TIMESTAMP WHERE id=:id AND user_id=:uid',
 
@@ -302,7 +302,7 @@ if ($uri === '/categories' && $method === 'POST') {
 
     $pdo->prepare(
 
-        'INSERT INTO categories (id, user_id, name, type, color, icon, monthly_limit, is_active, sort_order)
+        'INSERT INTO categories (`id`, `user_id`, `name`, `type`, `color`, `icon`, `monthly_limit`, `is_active`, `sort_order`)
 
          VALUES (:id, :uid, :name, :type, :color, :icon, :ml, :ia, :so)',
 
@@ -352,7 +352,7 @@ if (preg_match('#^/categories/([^/]+)$#', $uri, $m) && $method === 'PUT') {
 
     $pdo->prepare(
 
-        'UPDATE categories SET name=:name, type=:type, color=:color, icon=:icon,
+        'UPDATE categories SET name=:name, `type`=:type, color=:color, icon=:icon,
 
          monthly_limit=:ml, is_active=:ia, sort_order=:so, updated_at=CURRENT_TIMESTAMP
 
