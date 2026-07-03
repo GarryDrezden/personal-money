@@ -31,7 +31,7 @@ function countActiveFilters(filters: typeof DEFAULT_LEDGER_FILTERS): number {
 export function LedgerFilters() {
   const filters = useBudgetStore((s) => s.ledgerFilters);
   const setLedgerFilters = useBudgetStore((s) => s.setLedgerFilters);
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = useState(true);
 
   const activeCount = useMemo(() => countActiveFilters(filters), [filters]);
   const hasSearch = filters.search.trim().length > 0;
