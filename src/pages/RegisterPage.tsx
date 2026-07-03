@@ -58,13 +58,13 @@ export function RegisterPage() {
         <button
           type="submit"
           disabled={loading}
-          className="w-full rounded-lg bg-[var(--app-accent)] py-2 font-medium text-white disabled:opacity-50"
+          className="w-full rounded-lg bg-[var(--app-primary)] py-2.5 font-medium text-white shadow-sm hover:opacity-90 disabled:opacity-50"
         >
           {loading ? 'Создание…' : 'Создать аккаунт'}
         </button>
         <p className="text-center text-sm text-[var(--app-text-muted)]">
           Уже есть аккаунт?{' '}
-          <Link to="/login" className="text-[var(--app-accent)]">
+          <Link to="/login" className="font-medium text-[var(--app-primary)] hover:underline">
             Войти
           </Link>
         </p>

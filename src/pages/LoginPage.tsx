@@ -56,13 +56,13 @@ export function LoginPage() {
         <button
           type="submit"
           disabled={loading}
-          className="w-full rounded-lg bg-[var(--app-accent)] py-2 font-medium text-white disabled:opacity-50"
+          className="w-full rounded-lg bg-[var(--app-primary)] py-2.5 font-medium text-white shadow-sm hover:opacity-90 disabled:opacity-50"
         >
           {loading ? 'Вход…' : 'Войти'}
         </button>
         <p className="text-center text-sm text-[var(--app-text-muted)]">
           Нет аккаунта?{' '}
-          <Link to="/register" className="text-[var(--app-accent)]">
+          <Link to="/register" className="font-medium text-[var(--app-primary)] hover:underline">
             Регистрация
           </Link>
         </p>
