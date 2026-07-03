@@ -91,7 +91,7 @@ export function BulkAssignModal({ monthId, transactions, onClose }: BulkAssignMo
           <button
             type="button"
             disabled={busy || (!accountId && !categoryId)}
-            className="rounded-lg bg-[var(--app-primary)] px-3 py-2 text-sm text-white disabled:opacity-50"
+            className="btn-primary rounded-lg px-3 py-2 text-sm disabled:opacity-50"
             onClick={() => void handleApply()}
           >
             Применить

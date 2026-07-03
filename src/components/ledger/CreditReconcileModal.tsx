@@ -89,7 +89,7 @@ export function CreditReconcileModal({ monthId, summary, onClose }: CreditReconc
           <button
             type="button"
             disabled={busy}
-            className="rounded-lg bg-[var(--app-primary)] px-3 py-2 text-sm text-white disabled:opacity-50"
+            className="btn-primary rounded-lg px-3 py-2 text-sm disabled:opacity-50"
             onClick={() => void handleSubmit()}
           >
             Сверить

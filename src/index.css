@@ -11,6 +11,8 @@
   --app-text: #0f172a;
   --app-text-muted: #64748b;
   --app-primary: #f59e0b;
+  --app-primary-fg: #1c1917;
+  --app-primary-hover: #d97706;
   --app-primary-soft: #fef3c7;
   --app-secondary: #ec4899;
   --app-success: #10b981;
@@ -32,8 +34,10 @@
   --app-border: rgba(196, 181, 253, 0.18);
   --app-text: #f8fafc;
   --app-text-muted: #b8b5d6;
-  --app-primary: #facc15;
-  --app-primary-soft: rgba(250, 204, 21, 0.14);
+  --app-primary: #eab308;
+  --app-primary-fg: #1c1917;
+  --app-primary-hover: #ca8a04;
+  --app-primary-soft: rgba(234, 179, 8, 0.18);
   --app-secondary: #a78bfa;
   --app-success: #34d399;
   --app-danger: #fb7185;
@@ -56,6 +60,8 @@
   --app-text: #0f172a;
   --app-text-muted: #64748b;
   --app-primary: #f59e0b;
+  --app-primary-fg: #1c1917;
+  --app-primary-hover: #d97706;
   --app-primary-soft: #fef3c7;
   --app-secondary: #ec4899;
   --app-success: #10b981;
@@ -77,8 +83,10 @@
   --app-border: rgba(196, 181, 253, 0.18);
   --app-text: #f8fafc;
   --app-text-muted: #b8b5d6;
-  --app-primary: #facc15;
-  --app-primary-soft: rgba(250, 204, 21, 0.14);
+  --app-primary: #eab308;
+  --app-primary-fg: #1c1917;
+  --app-primary-hover: #ca8a04;
+  --app-primary-soft: rgba(234, 179, 8, 0.18);
   --app-secondary: #a78bfa;
   --app-success: #34d399;
   --app-danger: #fb7185;
@@ -141,6 +149,22 @@ body {
 .nav-link-active {
   background: var(--app-nav-active-bg);
   color: var(--app-nav-active-text);
+}
+
+.btn-primary {
+  background: var(--app-primary);
+  color: var(--app-primary-fg);
+  font-weight: 500;
+  transition: filter 0.15s ease, background-color 0.15s ease;
+}
+
+.btn-primary:hover:not(:disabled) {
+  filter: brightness(0.94);
+}
+
+.btn-primary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
 .money-input {

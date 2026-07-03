@@ -171,7 +171,7 @@ export function AccountsEditor() {
         <button
           type="button"
           onClick={openCreate}
-          className="inline-flex items-center gap-1.5 rounded-lg bg-[var(--app-primary)] px-3 py-2 text-sm font-medium text-white hover:opacity-90"
+          className="btn-primary inline-flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm"
         >
           <Plus size={16} />
           Добавить
@@ -310,7 +310,7 @@ export function AccountsEditor() {
                 type="button"
                 disabled={saving || !draft.name.trim()}
                 onClick={() => void handleSave()}
-                className="flex-1 rounded-lg bg-[var(--app-primary)] px-4 py-2.5 text-sm font-medium text-white disabled:opacity-50"
+                className="btn-primary flex-1 rounded-lg px-4 py-2.5 text-sm disabled:opacity-50"
               >
                 {saving ? 'Сохранение…' : 'Сохранить'}
               </button>
@@ -403,7 +403,7 @@ export function CategoriesEditor() {
         <button
           type="button"
           onClick={openCreate}
-          className="inline-flex items-center gap-1.5 rounded-lg bg-[var(--app-primary)] px-3 py-2 text-sm font-medium text-white hover:opacity-90"
+          className="btn-primary inline-flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm"
         >
           <Plus size={16} />
           Добавить
@@ -499,7 +499,7 @@ export function CategoriesEditor() {
                 type="button"
                 disabled={saving || !draft.name.trim()}
                 onClick={() => void handleSave()}
-                className="flex-1 rounded-lg bg-[var(--app-primary)] px-4 py-2.5 text-sm font-medium text-white disabled:opacity-50"
+                className="btn-primary flex-1 rounded-lg px-4 py-2.5 text-sm disabled:opacity-50"
               >
                 {saving ? 'Сохранение…' : 'Сохранить'}
               </button>

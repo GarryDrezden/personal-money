@@ -206,7 +206,7 @@ export function QuickTransactionForm({ monthId, compact = false }: QuickTransact
               type="button"
               className={`rounded-md px-3 py-1.5 text-xs font-medium transition-colors ${
                 opType === t.id
-                  ? 'bg-[var(--app-primary)] text-white shadow-sm'
+                  ? 'bg-[var(--app-primary)] text-[var(--app-primary-fg)] shadow-sm'
                   : 'text-[var(--app-text-muted)] hover:text-[var(--app-text)]'
               }`}
               onClick={() => setOpType(t.id)}
@@ -343,7 +343,7 @@ export function QuickTransactionForm({ monthId, compact = false }: QuickTransact
           <button
             type="button"
             disabled={busy}
-            className="w-full rounded-lg bg-[var(--app-primary)] px-4 py-2 text-sm font-medium text-white disabled:opacity-50"
+            className="btn-primary w-full rounded-lg px-4 py-2 text-sm disabled:opacity-50"
             onClick={() => void submit()}
           >
             {busy ? '…' : 'Добавить'}

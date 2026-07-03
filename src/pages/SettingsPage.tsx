@@ -157,12 +157,12 @@ export function SettingsPage() {
               ref={fileRef}
               type="file"
               accept=".xlsx,.xls"
-              className="mt-3 block w-full rounded-lg border border-dashed border-[var(--app-border)] bg-[var(--app-bg-soft)] p-3 text-sm file:mr-3 file:rounded-lg file:border-0 file:bg-[var(--app-primary)] file:px-3 file:py-1.5 file:text-sm file:font-medium file:text-white"
+              className="mt-3 block w-full rounded-lg border border-dashed border-[var(--app-border)] bg-[var(--app-bg-soft)] p-3 text-sm file:mr-3 file:rounded-lg file:border-0 file:bg-[var(--app-primary)] file:px-3 file:py-1.5 file:text-sm file:font-medium file:text-[var(--app-primary-fg)]"
             />
             <button
               type="button"
               disabled={busy}
-              className="mt-3 inline-flex items-center gap-2 rounded-lg bg-[var(--app-primary)] px-4 py-2 text-sm font-medium text-white disabled:opacity-50"
+              className="btn-primary mt-3 inline-flex items-center gap-2 rounded-lg px-4 py-2 text-sm disabled:opacity-50"
               onClick={() => void handleImport()}
             >
               <Upload size={16} />
