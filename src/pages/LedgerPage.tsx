@@ -87,7 +87,7 @@ export function LedgerPage() {
       <div className="space-y-4">
         <PageHeader
           title="Журнал"
-          subtitle={`${months.length} месяцев · быстрый ввод и фильтры`}
+          subtitle="Записывайте траты за пару секунд — сумма, название и Enter"
         />
 
         {activeMonthId && <QuickTransactionForm monthId={activeMonthId} />}

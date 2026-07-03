@@ -1,3 +1,4 @@
+import { forwardRef } from 'react';
 import { parseMoneyInput } from '../../utils/budget';
 
 interface MoneyInputProps {
@@ -9,16 +10,20 @@ interface MoneyInputProps {
   onKeyDown?: (e: React.KeyboardEvent) => void;
 }
 
-export function MoneyInput({
-  value,
-  onChange,
-  onParsed,
-  placeholder = '0',
-  className = 'money-input',
-  onKeyDown,
-}: MoneyInputProps) {
+export const MoneyInput = forwardRef<HTMLInputElement, MoneyInputProps>(function MoneyInput(
+  {
+    value,
+    onChange,
+    onParsed,
+    placeholder = '0',
+    className = 'money-input',
+    onKeyDown,
+  },
+  ref,
+) {
   return (
     <input
+      ref={ref}
       className={className}
       value={value}
       placeholder={placeholder}
@@ -30,4 +35,4 @@ export function MoneyInput({
       onKeyDown={onKeyDown}
     />
   );
-}
+});

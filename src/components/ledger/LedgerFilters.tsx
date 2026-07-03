@@ -1,9 +1,12 @@
+import { useMemo, useState } from 'react';
+import { ChevronDown, ChevronUp, Search, SlidersHorizontal } from 'lucide-react';
 import { useBudgetStore } from '../../store/budgetStore';
+import { DEFAULT_LEDGER_FILTERS } from '../../types';
 import { AccountSelect } from '../shared/AccountSelect';
 import { CategorySelect } from '../shared/CategorySelect';
 
 const OP_TYPES = [
-  { value: '', label: 'Все' },
+  { value: '', label: 'Все типы' },
   { value: 'expense', label: 'Расход' },
   { value: 'income', label: 'Доход' },
   { value: 'transfer', label: 'Перевод' },
@@ -12,9 +15,26 @@ const OP_TYPES = [
   { value: 'correction', label: 'Коррекция' },
 ];
 
+function countActiveFilters(filters: typeof DEFAULT_LEDGER_FILTERS): number {
+  let n = 0;
+  if (filters.search.trim()) n++;
+  if (filters.accountId) n++;
+  if (filters.categoryId) n++;
+  if (filters.incomeCategoryId) n++;
+  if (filters.operationType) n++;
+  if (filters.largeOnly) n++;
+  if (filters.noCategory) n++;
+  if (filters.noAccount) n++;
+  if (filters.incomeOnly) n++;
+  return n;
+}
+
 export function LedgerFilters() {
   const filters = useBudgetStore((s) => s.ledgerFilters);
   const setLedgerFilters = useBudgetStore((s) => s.setLedgerFilters);
+  const [open, setOpen] = useState(false);
+
+  const activeCount = useMemo(() => countActiveFilters(filters), [filters]);
 
   const setIncomeOnly = (checked: boolean) => {
     setLedgerFilters({
@@ -33,100 +53,147 @@ export function LedgerFilters() {
   };
 
   return (
-    <div className="space-y-2 rounded-xl border border-[var(--app-border)] bg-[var(--app-card)] p-3">
-      <div className="flex flex-wrap items-end gap-2">
-        <label className="flex flex-col gap-1 text-xs text-[var(--app-text-muted)]">
-          Поиск
-          <input
-            className="money-input min-w-[140px]"
-            value={filters.search}
-            onChange={(e) => setLedgerFilters({ search: e.target.value })}
-            placeholder="Название, источник…"
-          />
-        </label>
-        <label className="flex flex-col gap-1 text-xs text-[var(--app-text-muted)]">
-          Счёт
-          <AccountSelect
-            value={filters.accountId}
-            onChange={(id) => setLedgerFilters({ accountId: id })}
-            allowEmpty
-            includeCredit
-          />
-        </label>
-        <label className="flex flex-col gap-1 text-xs text-[var(--app-text-muted)]">
-          Категория расхода
-          <CategorySelect
-            value={filters.categoryId}
-            onChange={(id) => setLedgerFilters({ categoryId: id, incomeCategoryId: id ? '' : filters.incomeCategoryId })}
-            type="expense"
-          />
-        </label>
-        <label className="flex flex-col gap-1 text-xs text-[var(--app-text-muted)]">
-          Тип операции
-          <select
-            className="money-input min-w-[130px]"
-            value={filters.operationType}
-            onChange={(e) => setOperationType(e.target.value)}
-          >
-            {OP_TYPES.map((t) => (
-              <option key={t.value || 'all'} value={t.value}>
-                {t.label}
-              </option>
-            ))}
-          </select>
-        </label>
-        <label className="flex items-center gap-2 self-end pb-2 text-xs">
-          <input
-            type="checkbox"
-            checked={filters.largeOnly}
-            onChange={(e) => setLedgerFilters({ largeOnly: e.target.checked })}
-          />
-          &gt;5000 ₽
-        </label>
-        <label className="flex items-center gap-2 self-end pb-2 text-xs">
-          <input
-            type="checkbox"
-            checked={filters.noCategory}
-            onChange={(e) => setLedgerFilters({ noCategory: e.target.checked })}
-          />
-          без категории
-        </label>
-        <label className="flex items-center gap-2 self-end pb-2 text-xs">
-          <input
-            type="checkbox"
-            checked={filters.noAccount}
-            onChange={(e) => setLedgerFilters({ noAccount: e.target.checked })}
-          />
-          без счёта
+    <div className="ledger-filters">
+      <div className="ledger-filters-search">
+        <label className="quick-entry-field">
+          <span className="quick-entry-label">Поиск в журнале</span>
+          <div className="relative">
+            <Search
+              size={16}
+              className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-[var(--app-text-muted)]"
+            />
+            <input
+              className="money-input pl-9"
+              value={filters.search}
+              onChange={(e) => setLedgerFilters({ search: e.target.value })}
+              placeholder="Название, источник, заметка…"
+            />
+          </div>
         </label>
       </div>
 
-      <div className="flex flex-wrap items-end gap-2 border-t border-[var(--app-border)] pt-2">
-        <span className="self-center text-xs font-medium text-[var(--app-text-muted)]">Доходы</span>
-        <label className="flex flex-col gap-1 text-xs text-[var(--app-text-muted)]">
-          Категория дохода
-          <CategorySelect
-            value={filters.incomeCategoryId}
-            onChange={(id) =>
-              setLedgerFilters({
-                incomeCategoryId: id,
-                categoryId: id ? '' : filters.categoryId,
-                incomeOnly: id ? true : filters.incomeOnly,
-                operationType: id ? 'income' : filters.operationType === 'income' && !filters.incomeOnly ? '' : filters.operationType,
-              })
-            }
-            type="income"
-          />
-        </label>
-        <label className="flex items-center gap-2 self-end pb-2 text-xs font-medium">
-          <input
-            type="checkbox"
-            checked={filters.incomeOnly}
-            onChange={(e) => setIncomeOnly(e.target.checked)}
-          />
-          только доходы
-        </label>
-      </div>
+      <button
+        type="button"
+        className="ledger-filters-toggle"
+        onClick={() => setOpen((v) => !v)}
+        aria-expanded={open}
+      >
+        <span className="inline-flex items-center gap-2">
+          <SlidersHorizontal size={16} />
+          Фильтры
+          {activeCount > 0 && (
+            <span className="rounded-full bg-[var(--app-primary-soft)] px-2 py-0.5 text-xs font-semibold text-[var(--app-primary)]">
+              {activeCount}
+            </span>
+          )}
+        </span>
+        <span className="inline-flex items-center gap-1 text-[var(--app-text-muted)]">
+          <span className="ledger-filters-toggle-meta hidden sm:inline">
+            {open ? 'Свернуть' : 'Счёт, категория, тип…'}
+          </span>
+          {open ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
+        </span>
+      </button>
+
+      {open && (
+        <div className="ledger-filters-body">
+          <div className="ledger-filters-grid">
+            <label className="quick-entry-field">
+              <span className="quick-entry-label">Счёт</span>
+              <AccountSelect
+                value={filters.accountId}
+                onChange={(id) => setLedgerFilters({ accountId: id })}
+                allowEmpty
+                includeCredit
+              />
+            </label>
+            <label className="quick-entry-field">
+              <span className="quick-entry-label">Категория расхода</span>
+              <CategorySelect
+                value={filters.categoryId}
+                onChange={(id) =>
+                  setLedgerFilters({ categoryId: id, incomeCategoryId: id ? '' : filters.incomeCategoryId })
+                }
+                type="expense"
+              />
+            </label>
+            <label className="quick-entry-field">
+              <span className="quick-entry-label">Тип операции</span>
+              <select
+                className="money-input"
+                value={filters.operationType}
+                onChange={(e) => setOperationType(e.target.value)}
+              >
+                {OP_TYPES.map((t) => (
+                  <option key={t.value || 'all'} value={t.value}>
+                    {t.label}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <label className="quick-entry-field">
+              <span className="quick-entry-label">Категория дохода</span>
+              <CategorySelect
+                value={filters.incomeCategoryId}
+                onChange={(id) =>
+                  setLedgerFilters({
+                    incomeCategoryId: id,
+                    categoryId: id ? '' : filters.categoryId,
+                    incomeOnly: id ? true : filters.incomeOnly,
+                    operationType:
+                      id ? 'income' : filters.operationType === 'income' && !filters.incomeOnly ? '' : filters.operationType,
+                  })
+                }
+                type="income"
+              />
+            </label>
+          </div>
+
+          <div className="ledger-filters-checks">
+            <label className="ledger-filters-check">
+              <input
+                type="checkbox"
+                checked={filters.largeOnly}
+                onChange={(e) => setLedgerFilters({ largeOnly: e.target.checked })}
+              />
+              Сумма &gt; 5000 ₽
+            </label>
+            <label className="ledger-filters-check">
+              <input
+                type="checkbox"
+                checked={filters.noCategory}
+                onChange={(e) => setLedgerFilters({ noCategory: e.target.checked })}
+              />
+              Без категории
+            </label>
+            <label className="ledger-filters-check">
+              <input
+                type="checkbox"
+                checked={filters.noAccount}
+                onChange={(e) => setLedgerFilters({ noAccount: e.target.checked })}
+              />
+              Без счёта
+            </label>
+            <label className="ledger-filters-check font-medium">
+              <input
+                type="checkbox"
+                checked={filters.incomeOnly}
+                onChange={(e) => setIncomeOnly(e.target.checked)}
+              />
+              Только доходы
+            </label>
+            {activeCount > 0 && (
+              <button
+                type="button"
+                className="text-xs font-medium text-[var(--app-primary)] hover:underline"
+                onClick={() => setLedgerFilters({ ...DEFAULT_LEDGER_FILTERS })}
+              >
+                Сбросить все
+              </button>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

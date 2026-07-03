@@ -1,5 +1,14 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { ChevronDown, ChevronUp } from 'lucide-react';
+import {
+  ArrowLeftRight,
+  ChevronDown,
+  ChevronUp,
+  Plus,
+  Sparkles,
+  TrendingDown,
+  TrendingUp,
+} from 'lucide-react';
+import type { LucideIcon } from 'lucide-react';
 import type { QuickFormPrefs } from '../../types';
 import { useBudgetStore } from '../../store/budgetStore';
 import { categoryName } from '../../utils/budget';
@@ -9,20 +18,60 @@ import { CategorySelect } from '../shared/CategorySelect';
 import { CategoryIcon } from '../shared/CategoryIcon';
 import { MoneyInput } from '../shared/MoneyInput';
 
-const SIMPLE_TYPES: { id: QuickFormPrefs['operationType']; label: string }[] = [
-  { id: 'expense', label: 'Расход' },
-  { id: 'income', label: 'Доход' },
-  { id: 'transfer', label: 'Перевод' },
+type OpType = QuickFormPrefs['operationType'];
+
+const SIMPLE_TYPES: {
+  id: OpType;
+  label: string;
+  icon: LucideIcon;
+  namePlaceholder: string;
+  submitLabel: string;
+}[] = [
+  {
+    id: 'expense',
+    label: 'Расход',
+    icon: TrendingDown,
+    namePlaceholder: 'Пятёрочка, такси, подписка…',
+    submitLabel: 'Добавить расход',
+  },
+  {
+    id: 'income',
+    label: 'Доход',
+    icon: TrendingUp,
+    namePlaceholder: 'Зарплата, возврат, подработка…',
+    submitLabel: 'Добавить доход',
+  },
+  {
+    id: 'transfer',
+    label: 'Перевод',
+    icon: ArrowLeftRight,
+    namePlaceholder: 'Комментарий (необязательно)',
+    submitLabel: 'Записать перевод',
+  },
 ];
 
-const ADVANCED_TYPES: { id: QuickFormPrefs['operationType']; label: string }[] = [
-  { id: 'debt_payment', label: 'Кредит' },
-  { id: 'credit_card_payment', label: 'Кредитка' },
-  { id: 'correction', label: 'Коррекция' },
+const ADVANCED_TYPES: { id: OpType; label: string; submitLabel: string }[] = [
+  { id: 'debt_payment', label: 'Платёж по кредиту', submitLabel: 'Записать платёж' },
+  { id: 'credit_card_payment', label: 'На кредитку', submitLabel: 'Записать на кредитку' },
+  { id: 'correction', label: 'Коррекция баланса', submitLabel: 'Записать коррекцию' },
 ];
 
-function isSimpleType(type: QuickFormPrefs['operationType']): boolean {
+function isSimpleType(type: OpType): boolean {
   return type === 'expense' || type === 'income' || type === 'transfer';
+}
+
+function getSubmitLabel(opType: OpType): string {
+  const simple = SIMPLE_TYPES.find((t) => t.id === opType);
+  if (simple) return simple.submitLabel;
+  return ADVANCED_TYPES.find((t) => t.id === opType)?.submitLabel ?? 'Добавить';
+}
+
+function getNamePlaceholder(opType: OpType): string {
+  const simple = SIMPLE_TYPES.find((t) => t.id === opType);
+  if (simple) return simple.namePlaceholder;
+  if (opType === 'debt_payment') return 'Банк, ипотека…';
+  if (opType === 'credit_card_payment') return 'Платёж по кредитке';
+  return 'Описание';
 }
 
 interface QuickTransactionFormProps {
@@ -43,7 +92,10 @@ export function QuickTransactionForm({ monthId, compact = false }: QuickTransact
   const [note, setNote] = useState('');
   const [busy, setBusy] = useState(false);
   const [advancedOpen, setAdvancedOpen] = useState(false);
+  const [noteOpen, setNoteOpen] = useState(false);
   const categoryTouched = useRef(false);
+  const amountRef = useRef<HTMLInputElement>(null);
+  const nameRef = useRef<HTMLInputElement>(null);
 
   const opType = quickForm.operationType;
   const creditAccount = useMemo(
@@ -71,7 +123,7 @@ export function QuickTransactionForm({ monthId, compact = false }: QuickTransact
     setQuickForm({ categoryId: suggestedCategoryId });
   }, [name, suggestedCategoryId, opType, quickForm.categoryId, setQuickForm]);
 
-  const setOpType = (t: QuickFormPrefs['operationType']) => {
+  const setOpType = (t: OpType) => {
     setQuickForm({ operationType: t });
     if (isSimpleType(t)) setAdvancedOpen(false);
   };
@@ -91,6 +143,7 @@ export function QuickTransactionForm({ monthId, compact = false }: QuickTransact
     const num = Number(amount.replace(/\s/g, '').replace(',', '.'));
     if (!Number.isFinite(num) || num <= 0) {
       showToast('Укажите сумму', 'error');
+      amountRef.current?.focus();
       return;
     }
     setBusy(true);
@@ -168,6 +221,7 @@ export function QuickTransactionForm({ monthId, compact = false }: QuickTransact
       }
 
       setAmount('');
+      amountRef.current?.focus();
     } catch (e) {
       showToast(e instanceof Error ? e.message : 'Ошибка', 'error');
     } finally {
@@ -176,7 +230,7 @@ export function QuickTransactionForm({ monthId, compact = false }: QuickTransact
   };
 
   const onKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter') {
+    if (e.key === 'Enter' && (e.target as HTMLElement).tagName !== 'TEXTAREA') {
       e.preventDefault();
       void submit();
     }
@@ -192,59 +246,49 @@ export function QuickTransactionForm({ monthId, compact = false }: QuickTransact
   const suggestionApplied =
     showSuggestion && quickForm.categoryId === suggestedCategoryId && !categoryTouched.current;
 
-  return (
-    <div
-      className={`rounded-xl border border-[var(--app-border)] bg-[var(--app-card)] ${
-        compact ? 'p-3' : 'sticky top-0 z-10 p-4 shadow-md'
-      }`}
-    >
-      <div className="mb-3 flex flex-wrap items-center gap-2">
-        <div className="flex gap-1 rounded-lg border border-[var(--app-border)] bg-[var(--app-bg-soft)] p-0.5">
-          {SIMPLE_TYPES.map((t) => (
-            <button
-              key={t.id}
-              type="button"
-              className={`rounded-md px-3 py-1.5 text-xs font-medium transition-colors ${
-                opType === t.id
-                  ? 'bg-[var(--app-primary)] text-[var(--app-primary-fg)] shadow-sm'
-                  : 'text-[var(--app-text-muted)] hover:text-[var(--app-text)]'
-              }`}
-              onClick={() => setOpType(t.id)}
-            >
-              {t.label}
-            </button>
-          ))}
-        </div>
-        <button
-          type="button"
-          className={`inline-flex items-center gap-1 rounded-lg border px-2.5 py-1.5 text-xs font-medium ${
-            advancedOpen || !isSimpleType(opType)
-              ? 'border-[var(--app-primary)] bg-[var(--app-primary-soft)] text-[var(--app-primary)]'
-              : 'border-[var(--app-border)] text-[var(--app-text-muted)]'
-          }`}
-          onClick={() => setAdvancedOpen((v) => !v)}
-        >
-          Ещё
-          {advancedOpen ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
-        </button>
-        {!isSimpleType(opType) && (
-          <span className="text-xs text-[var(--app-text-muted)]">
-            {ADVANCED_TYPES.find((t) => t.id === opType)?.label}
-          </span>
-        )}
-      </div>
+  const submitLabel = getSubmitLabel(opType);
+  const namePlaceholder = getNamePlaceholder(opType);
 
+  const typeSegment = (
+    <div className="quick-entry-types" role="tablist" aria-label="Тип операции">
+      {SIMPLE_TYPES.map((t) => {
+        const Icon = t.icon;
+        const active = opType === t.id;
+        return (
+          <button
+            key={t.id}
+            type="button"
+            role="tab"
+            aria-selected={active}
+            className={`quick-entry-type ${active ? 'quick-entry-type--active' : ''}`}
+            onClick={() => setOpType(t.id)}
+          >
+            <Icon size={compact ? 14 : 16} strokeWidth={2.25} />
+            <span>{t.label}</span>
+          </button>
+        );
+      })}
+    </div>
+  );
+
+  const advancedBlock = (
+    <>
+      <button
+        type="button"
+        className="quick-entry-more"
+        onClick={() => setAdvancedOpen((v) => !v)}
+        aria-expanded={advancedOpen}
+      >
+        Ещё типы
+        {advancedOpen ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
+      </button>
       {advancedOpen && (
-        <div className="mb-3 flex flex-wrap gap-1">
+        <div className="quick-entry-advanced">
           {ADVANCED_TYPES.map((t) => (
             <button
               key={t.id}
               type="button"
-              className={`rounded-lg px-2.5 py-1 text-xs font-medium ${
-                opType === t.id
-                  ? 'bg-[var(--app-primary-soft)] text-[var(--app-primary)]'
-                  : 'border border-[var(--app-border)] text-[var(--app-text-muted)]'
-              }`}
+              className={`quick-entry-advanced-btn ${opType === t.id ? 'quick-entry-advanced-btn--active' : ''}`}
               onClick={() => setOpType(t.id)}
             >
               {t.label}
@@ -252,104 +296,192 @@ export function QuickTransactionForm({ monthId, compact = false }: QuickTransact
           ))}
         </div>
       )}
+      {!isSimpleType(opType) && (
+        <p className="quick-entry-advanced-hint">
+          Выбрано: {ADVANCED_TYPES.find((t) => t.id === opType)?.label}
+        </p>
+      )}
+    </>
+  );
 
-      <div
-        className={`grid gap-2 ${
-          compact ? 'sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6' : 'sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-7'
-        }`}
-      >
-        <label className="flex flex-col gap-1 text-xs text-[var(--app-text-muted)]">
-          Дата
-          <input
-            type="date"
-            className="money-input"
-            value={quickForm.txDate}
-            onChange={(e) => setQuickForm({ txDate: e.target.value })}
+  const suggestionChip = showSuggestion && (
+    <div className="quick-entry-suggestion">
+      <Sparkles size={13} className="shrink-0 text-[var(--app-primary)]" />
+      <CategoryIcon categoryId={suggestedCategoryId} size={14} />
+      <span className="min-w-0 truncate text-sm">
+        {categoryName(categories, suggestedCategoryId)}
+      </span>
+      {suggestionApplied ? (
+        <span className="quick-entry-suggestion-badge">подобрано</span>
+      ) : (
+        <button type="button" className="quick-entry-suggestion-apply" onClick={applySuggestion}>
+          применить
+        </button>
+      )}
+    </div>
+  );
+
+  const detailsFields = (
+    <div className={`quick-entry-details ${compact ? 'quick-entry-details--compact' : ''}`}>
+      <label className="quick-entry-field">
+        <span className="quick-entry-label">Дата</span>
+        <input
+          type="date"
+          className="money-input"
+          value={quickForm.txDate}
+          onChange={(e) => setQuickForm({ txDate: e.target.value })}
+        />
+      </label>
+      <label className="quick-entry-field">
+        <span className="quick-entry-label">Счёт</span>
+        <AccountSelect value={quickForm.accountId} onChange={(id) => setQuickForm({ accountId: id })} />
+      </label>
+      {showTarget && (
+        <label className="quick-entry-field">
+          <span className="quick-entry-label">
+            {opType === 'credit_card_payment' ? 'Кредитка' : 'Куда переводим'}
+          </span>
+          {opType === 'credit_card_payment' && creditAccount ? (
+            <input className="money-input opacity-80" value={creditAccount.name} readOnly />
+          ) : (
+            <AccountSelect
+              value={quickForm.targetAccountId}
+              onChange={(id) => setQuickForm({ targetAccountId: id })}
+            />
+          )}
+        </label>
+      )}
+      {showCategory && (
+        <label className="quick-entry-field">
+          <span className="quick-entry-label">Категория</span>
+          <CategorySelect
+            value={quickForm.categoryId}
+            onChange={handleCategoryChange}
+            type={opType === 'income' ? 'income' : 'expense'}
           />
         </label>
-        <label className="flex flex-col gap-1 text-xs text-[var(--app-text-muted)]">
-          Название
+      )}
+      {!compact && (
+        <div className="quick-entry-field quick-entry-field--note">
+          {!noteOpen && !note ? (
+            <button type="button" className="quick-entry-note-toggle" onClick={() => setNoteOpen(true)}>
+              + Заметка
+            </button>
+          ) : (
+            <label className="flex w-full flex-col gap-1">
+              <span className="quick-entry-label">Заметка</span>
+              <input
+                className="money-input"
+                value={note}
+                onChange={(e) => setNote(e.target.value)}
+                placeholder="Необязательно"
+                onKeyDown={onKeyDown}
+              />
+            </label>
+          )}
+        </div>
+      )}
+    </div>
+  );
+
+  const submitButton = (
+    <button
+      type="button"
+      disabled={busy}
+      className="quick-entry-submit btn-primary"
+      onClick={() => void submit()}
+    >
+      <Plus size={18} strokeWidth={2.5} />
+      {busy ? 'Сохраняем…' : submitLabel}
+    </button>
+  );
+
+  if (compact) {
+    return (
+      <div className="quick-entry quick-entry--compact">
+        {typeSegment}
+        <div className="quick-entry-main quick-entry-main--compact">
+          <label className="quick-entry-field quick-entry-field--grow">
+            <span className="quick-entry-label">Название</span>
+            <input
+              ref={nameRef}
+              className="money-input"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              onKeyDown={onKeyDown}
+              placeholder={namePlaceholder}
+            />
+          </label>
+          <label className="quick-entry-field quick-entry-field--amount">
+            <span className="quick-entry-label">Сумма</span>
+            <div className="quick-entry-amount-wrap">
+              <MoneyInput
+                ref={amountRef}
+                value={amount}
+                onChange={setAmount}
+                onKeyDown={onKeyDown}
+                className="money-input quick-entry-amount-input"
+              />
+              <span className="quick-entry-currency">₽</span>
+            </div>
+          </label>
+        </div>
+        {suggestionChip}
+        {detailsFields}
+        <div className="quick-entry-footer quick-entry-footer--compact">
+          {advancedBlock}
+          {submitButton}
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="quick-entry sticky top-0 z-10">
+      <div className="quick-entry-header">
+        <div>
+          <h2 className="quick-entry-title">Новая запись</h2>
+          <p className="quick-entry-subtitle">Сумма и название — Enter для сохранения</p>
+        </div>
+        <div className="hidden sm:block">{advancedBlock}</div>
+      </div>
+
+      {typeSegment}
+      <div className="sm:hidden">{advancedBlock}</div>
+
+      <div className="quick-entry-main">
+        <label className="quick-entry-field quick-entry-field--grow">
+          <span className="quick-entry-label">
+            {opType === 'income' ? 'Источник' : opType === 'transfer' ? 'Комментарий' : 'Куда / что'}
+          </span>
           <input
-            className="money-input"
+            ref={nameRef}
+            className="money-input quick-entry-name-input"
             value={name}
             onChange={(e) => setName(e.target.value)}
             onKeyDown={onKeyDown}
-            placeholder={
-              opType === 'income'
-                ? 'Источник дохода'
-                : opType === 'transfer'
-                  ? 'Комментарий (необяз.)'
-                  : 'Магазин, услуга…'
-            }
+            placeholder={namePlaceholder}
+            autoComplete="off"
           />
-          {showSuggestion && (
-            <span className="mt-0.5 flex flex-wrap items-center gap-1.5">
-              <CategoryIcon categoryId={suggestedCategoryId} size={12} />
-              <span className="text-[10px] text-[var(--app-text-muted)]">
-                {categoryName(categories, suggestedCategoryId)}
-              </span>
-              {suggestionApplied ? (
-                <span className="text-[10px] text-[var(--app-success)]">· подобрано</span>
-              ) : (
-                <button
-                  type="button"
-                  className="text-[10px] font-medium text-[var(--app-primary)] hover:underline"
-                  onClick={applySuggestion}
-                >
-                  применить
-                </button>
-              )}
-            </span>
-          )}
         </label>
-        <label className="flex flex-col gap-1 text-xs text-[var(--app-text-muted)]">
-          Сумма
-          <MoneyInput value={amount} onChange={setAmount} onKeyDown={onKeyDown} />
-        </label>
-        <label className="flex flex-col gap-1 text-xs text-[var(--app-text-muted)]">
-          Счёт
-          <AccountSelect value={quickForm.accountId} onChange={(id) => setQuickForm({ accountId: id })} />
-        </label>
-        {showTarget && (
-          <label className="flex flex-col gap-1 text-xs text-[var(--app-text-muted)]">
-            {opType === 'credit_card_payment' ? 'Кредитка' : 'Куда'}
-            {opType === 'credit_card_payment' && creditAccount ? (
-              <input className="money-input opacity-80" value={creditAccount.name} readOnly />
-            ) : (
-              <AccountSelect
-                value={quickForm.targetAccountId}
-                onChange={(id) => setQuickForm({ targetAccountId: id })}
-              />
-            )}
-          </label>
-        )}
-        {showCategory && (
-          <label className="flex flex-col gap-1 text-xs text-[var(--app-text-muted)]">
-            Категория
-            <CategorySelect
-              value={quickForm.categoryId}
-              onChange={handleCategoryChange}
-              type={opType === 'income' ? 'income' : 'expense'}
+        <label className="quick-entry-field quick-entry-field--amount">
+          <span className="quick-entry-label">Сумма</span>
+          <div className="quick-entry-amount-wrap">
+            <MoneyInput
+              ref={amountRef}
+              value={amount}
+              onChange={setAmount}
+              onKeyDown={onKeyDown}
+              className="money-input quick-entry-amount-input"
             />
-          </label>
-        )}
-        {!compact && (
-          <label className="flex flex-col gap-1 text-xs text-[var(--app-text-muted)] lg:col-span-2">
-            Заметка
-            <input className="money-input" value={note} onChange={(e) => setNote(e.target.value)} />
-          </label>
-        )}
-        <div className="flex items-end">
-          <button
-            type="button"
-            disabled={busy}
-            className="btn-primary w-full rounded-lg px-4 py-2 text-sm disabled:opacity-50"
-            onClick={() => void submit()}
-          >
-            {busy ? '…' : 'Добавить'}
-          </button>
-        </div>
+            <span className="quick-entry-currency">₽</span>
+          </div>
+        </label>
       </div>
+
+      {suggestionChip}
+      {detailsFields}
+      {submitButton}
     </div>
   );
 }
