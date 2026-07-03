@@ -32,13 +32,16 @@ export function DashboardPage() {
 
   return (
     <div className="space-y-6">
-      <PageHeader
-        title="Главная"
-        subtitle={`${current ? formatYearMonth(current.yearMonth) : ''} · ежедневный учёт`}
-      />
+      <div className="ledger-top-grid">
+        <PageHeader
+          className="h-full"
+          title="Главная"
+          subtitle={`${current ? formatYearMonth(current.yearMonth) : ''} · ежедневный учёт`}
+        />
+        <AttentionBlock className="h-full" />
+      </div>
 
       <FinancialPulse />
-      <AttentionBlock />
       <QuickEntryWidget />
       <AccountCards />
       <MonthCategoriesWidget />

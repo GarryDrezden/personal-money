@@ -175,7 +175,7 @@ export function RecentTransactions() {
   );
 }
 
-export function AttentionBlock() {
+export function AttentionBlock({ className = '' }: { className?: string }) {
   const transactions = useBudgetStore((s) => s.transactions);
   const months = useBudgetStore((s) => s.months);
   const accounts = useBudgetStore((s) => s.accounts);
@@ -230,7 +230,7 @@ export function AttentionBlock() {
 
   if (!issues.length) {
     return (
-      <Card variant="success">
+      <Card variant="success" className={`flex h-full flex-col justify-center ${className}`.trim()}>
         <h2 className="font-semibold">Всё в порядке</h2>
         <p className="mt-1 text-sm text-[var(--app-text-muted)]">Нет срочных замечаний</p>
       </Card>
@@ -238,7 +238,7 @@ export function AttentionBlock() {
   }
 
   return (
-    <Card variant="danger">
+    <Card variant="danger" className={`flex h-full flex-col justify-center ${className}`.trim()}>
       <h2 className="font-semibold">Требует внимания</h2>
       <ul className="mt-2 space-y-1 text-sm">
         {issues.map((issue) => (

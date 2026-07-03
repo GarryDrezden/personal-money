@@ -126,6 +126,12 @@ body {
   box-shadow: var(--app-shadow);
 }
 
+.surface-panel.h-full {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
 [data-theme='cozy'] .surface-panel,
 [data-theme='light'] .surface-panel {
   background: rgba(255, 255, 255, 0.94);
