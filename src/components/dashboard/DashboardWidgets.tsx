@@ -55,11 +55,7 @@ export function AccountCards() {
 
   return (
     <>
-      <div>
-        <div className="mb-3">
-          <h2 className="font-semibold">Карты и счета</h2>
-        </div>
-        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
           {summaries.map((s) => {
             const acc = accountMap.get(s.accountId);
             const isCredit = acc?.type === 'credit';
@@ -98,7 +94,6 @@ export function AccountCards() {
               </Link>
             );
           })}
-        </div>
       </div>
 
       {reconcileSummary && (
