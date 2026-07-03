@@ -54,7 +54,7 @@ function requireAuth(): string
 
 function isAuthRoute(string $uri, string $method): bool
 {
-    if (str_starts_with($uri, '/auth/')) {
+    if (strncmp($uri, '/auth/', 6) === 0) {
         return in_array($uri, ['/auth/login', '/auth/register', '/auth/logout', '/auth/me'], true);
     }
     return false;

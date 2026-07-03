@@ -5,7 +5,9 @@ $config = (function () {
     if (is_readable($path)) {
         return require $path;
     }
-    return ['APP_URL' => 'http://127.0.0.1:8081', 'APP_HTTPS' => false];
+    $scheme = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
+    $host = $_SERVER['HTTP_HOST'] ?? '127.0.0.1:8081';
+    return ['APP_URL' => "{$scheme}://{$host}", 'APP_HTTPS' => false];
 })();
 
 $appOrigin = rtrim($config['APP_URL'] ?? 'http://127.0.0.1:8081', '/');
@@ -28,7 +30,7 @@ require_once __DIR__ . '/auth.php';
 
 initSession();
 
-function jsonResponse(mixed $data, int $code = 200): void
+function jsonResponse($data, int $code = 200): void
 {
     http_response_code($code);
     echo json_encode($data, JSON_UNESCAPED_UNICODE);
