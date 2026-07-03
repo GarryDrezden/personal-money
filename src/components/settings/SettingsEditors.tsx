@@ -1,8 +1,9 @@
-import { useState, type ReactNode } from 'react';
-import { Plus, Trash2, X } from 'lucide-react';
+import { useState } from 'react';
+import { Plus, Trash2 } from 'lucide-react';
 import type { Account, AccountType, Category, CategoryType } from '../../types';
 import { useBudgetStore } from '../../store/budgetStore';
 import { Card } from '../ui/Card';
+import { Modal } from '../ui/Modal';
 import { MoneyInput } from '../shared/MoneyInput';
 import { CategoryIcon } from '../shared/CategoryIcon';
 import { AccountIcon } from '../shared/AccountIcon';
@@ -41,35 +42,6 @@ function ColorPicker({
           style={{ backgroundColor: c.hex }}
         />
       ))}
-    </div>
-  );
-}
-
-function Modal({
-  title,
-  onClose,
-  children,
-}: {
-  title: string;
-  onClose: () => void;
-  children: ReactNode;
-}) {
-  return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/40 p-4 backdrop-blur-sm">
-      <div className="max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-2xl border border-[var(--app-border)] bg-[var(--app-card-strong)] p-5 shadow-xl">
-        <div className="mb-4 flex items-center justify-between gap-3">
-          <h3 className="text-lg font-semibold">{title}</h3>
-          <button
-            type="button"
-            onClick={onClose}
-            className="rounded-lg p-1.5 text-[var(--app-text-muted)] hover:bg-[var(--app-bg-soft)]"
-            aria-label="Закрыть"
-          >
-            <X size={20} />
-          </button>
-        </div>
-        {children}
-      </div>
     </div>
   );
 }
