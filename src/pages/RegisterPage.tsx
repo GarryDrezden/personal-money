@@ -1,157 +1,67 @@
 import { useState } from 'react';
-
 import { Link, useNavigate } from 'react-router-dom';
-
-import { AppLogo } from '../components/shared/AppLogo';
-
+import { AuthLayout } from '../components/layout/AuthLayout';
 import { useAuthStore } from '../store/authStore';
 
-
-
 export function RegisterPage() {
-
   const navigate = useNavigate();
-
   const register = useAuthStore((s) => s.register);
-
   const [username, setUsername] = useState('');
-
   const [password, setPassword] = useState('');
-
   const [error, setError] = useState('');
-
   const [loading, setLoading] = useState(false);
 
-
-
   const onSubmit = async (e: React.FormEvent) => {
-
     e.preventDefault();
-
     setLoading(true);
-
     setError('');
-
     try {
-
       await register(username, password);
-
       navigate('/', { replace: true });
-
     } catch (err) {
-
       setError(err instanceof Error ? err.message : 'Ошибка регистрации');
-
     } finally {
-
       setLoading(false);
-
     }
-
   };
 
-
-
   return (
-
-    <div className="flex min-h-screen flex-col items-center justify-center bg-[var(--app-bg)] p-6">
-
-      <div className="mb-8">
-
-        <AppLogo size={56} />
-
-      </div>
-
-      <form
-
-        onSubmit={onSubmit}
-
-        className="w-full max-w-sm space-y-4 rounded-2xl border border-[var(--app-border)] bg-[var(--app-card)] p-6 shadow-lg"
-
-      >
-
-        <h1 className="text-xl font-semibold text-[var(--app-text)]">Регистрация</h1>
-
-        {error && <p className="text-sm text-[var(--app-danger)]">{error}</p>}
-
-        <label className="block space-y-1">
-
-          <span className="text-sm text-[var(--app-text-muted)]">Логин (мин. 3 символа)</span>
-
+    <AuthLayout title="Регистрация" subtitle="Создайте аккаунт — настройка займёт пару минут">
+      <form onSubmit={onSubmit}>
+        {error && <p className="mb-3 text-sm text-[var(--app-danger)]">{error}</p>}
+        <label className="auth-field">
+          <span className="auth-field-label">Логин (мин. 3 символа)</span>
           <input
-
-            className="w-full rounded-lg border border-[var(--app-border)] bg-[var(--app-bg)] px-3 py-2"
-
+            className="auth-field-input"
             value={username}
-
             onChange={(e) => setUsername(e.target.value)}
-
             autoComplete="username"
-
             minLength={3}
-
             required
-
           />
-
         </label>
-
-        <label className="block space-y-1">
-
-          <span className="text-sm text-[var(--app-text-muted)]">Пароль (мин. 6 символов)</span>
-
+        <label className="auth-field">
+          <span className="auth-field-label">Пароль (мин. 6 символов)</span>
           <input
-
             type="password"
-
-            className="w-full rounded-lg border border-[var(--app-border)] bg-[var(--app-bg)] px-3 py-2"
-
+            className="auth-field-input"
             value={password}
-
             onChange={(e) => setPassword(e.target.value)}
-
             autoComplete="new-password"
-
             minLength={6}
-
             required
-
           />
-
         </label>
-
-        <button
-
-          type="submit"
-
-          disabled={loading}
-
-          className="btn-primary w-full rounded-lg py-2.5 shadow-sm disabled:opacity-50"
-
-        >
-
+        <button type="submit" disabled={loading} className="auth-submit btn-primary disabled:opacity-50">
           {loading ? 'Создание…' : 'Создать аккаунт'}
-
         </button>
-
-        <p className="text-center text-sm text-[var(--app-text-muted)]">
-
+        <p className="auth-footer">
           Уже есть аккаунт?{' '}
-
-          <Link to="/login" className="font-medium text-[var(--app-primary)] hover:underline">
-
+          <Link to="/login" className="font-semibold text-[var(--app-primary)] hover:underline">
             Войти
-
           </Link>
-
         </p>
-
       </form>
-
-    </div>
-
+    </AuthLayout>
   );
-
 }
-
-

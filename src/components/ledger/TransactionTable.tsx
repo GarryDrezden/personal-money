@@ -1,8 +1,9 @@
 import { memo, useCallback } from 'react';
-import { Copy, Trash2 } from 'lucide-react';
+import { Copy, SearchX, Trash2 } from 'lucide-react';
 import type { Transaction } from '../../types';
 import { accountName, formatMoney, parseMoneyInput } from '../../utils/budget';
 import { useBudgetStore } from '../../store/budgetStore';
+import { EmptyState } from '../ui/EmptyState';
 import { AccountSelect } from '../shared/AccountSelect';
 import { CategorySelect } from '../shared/CategorySelect';
 import { CategoryLabel } from '../shared/CategoryIcon';
@@ -137,7 +138,14 @@ export function TransactionTable({ transactions }: TransactionTableProps) {
   const onSave = useCallback((tx: Transaction) => void updateTransaction(tx), [updateTransaction]);
 
   if (!transactions.length) {
-    return <p className="text-sm text-[var(--app-text-muted)]">Нет операций по фильтрам</p>;
+    return (
+      <EmptyState
+        icon={SearchX}
+        title="Ничего не найдено"
+        description="Попробуйте изменить фильтры или добавьте новую операцию"
+        compact
+      />
+    );
   }
 
   return (

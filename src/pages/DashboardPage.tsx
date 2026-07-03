@@ -1,5 +1,6 @@
-import { Link } from 'react-router-dom';
+import { Wallet } from 'lucide-react';
 import { PageHeader } from '../components/ui/PageHeader';
+import { EmptyState } from '../components/ui/EmptyState';
 import {
   AccountCards,
   AttentionBlock,
@@ -18,15 +19,13 @@ export function DashboardPage() {
 
   if (!summaries.length) {
     return (
-      <div className="surface-panel">
-        <h1 className="text-2xl font-bold">Личный бюджет</h1>
-        <p className="mt-2 text-[var(--app-text-muted)]">
-          Данные не импортированы. Перейдите в{' '}
-          <Link to="/settings" className="text-[var(--app-primary)] underline">
-            Настройки
-          </Link>
-        </p>
-      </div>
+      <EmptyState
+        icon={Wallet}
+        title="Бюджет ещё не настроен"
+        description="Импортируйте Excel или пройдите быструю настройку в настройках"
+        actionLabel="Перейти в настройки"
+        actionTo="/settings"
+      />
     );
   }
 

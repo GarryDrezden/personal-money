@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 import { useMemo, useState } from 'react';
+import { Inbox } from 'lucide-react';
 import {
   useBudgetStore,
   useCurrentMonthSummary,
@@ -14,6 +15,7 @@ import {
 } from '../../utils/budget';
 import { getActiveCreditAccounts } from '../../utils/accounts';
 import { Card } from '../ui/Card';
+import { EmptyState } from '../ui/EmptyState';
 import { AccountIcon } from '../shared/AccountIcon';
 import { QuickTransactionForm } from '../ledger/QuickTransactionForm';
 import { CategorySummary } from '../ledger/CategorySummary';
@@ -152,25 +154,33 @@ export function RecentTransactions() {
           Журнал →
         </Link>
       </div>
-      <ul className="space-y-2 text-sm">
-        {recent.map((tx) => (
-          <li
-            key={tx.id}
-            className="flex justify-between gap-2 border-b border-[var(--app-border)] pb-2 last:border-0"
-          >
-            <span className="flex min-w-0 items-center gap-2 truncate">
-              {tx.categoryId ? <CategoryIcon categoryId={tx.categoryId} size={14} /> : null}
-              <span className="truncate">
-                {tx.txDate ?? '—'} · {tx.expenseName ?? tx.incomeSource ?? '—'}
+      {!recent.length ? (
+        <EmptyState
+          icon={Inbox}
+          title="Пока пусто"
+          description="Добавьте первую операцию — кнопка + внизу справа"
+          actionLabel="Открыть журнал"
+          actionTo="/ledger"
+          compact
+        />
+      ) : (
+        <ul className="space-y-2 text-sm">
+          {recent.map((tx) => (
+            <li
+              key={tx.id}
+              className="flex justify-between gap-2 border-b border-[var(--app-border)] pb-2 last:border-0"
+            >
+              <span className="flex min-w-0 items-center gap-2 truncate">
+                {tx.categoryId ? <CategoryIcon categoryId={tx.categoryId} size={14} /> : null}
+                <span className="truncate">
+                  {tx.txDate ?? '—'} · {tx.expenseName ?? tx.incomeSource ?? '—'}
+                </span>
               </span>
-            </span>
-            <TransactionAmount tx={tx} />
-          </li>
-        ))}
-        {!recent.length && (
-          <li className="text-[var(--app-text-muted)]">Нет операций</li>
-        )}
-      </ul>
+              <TransactionAmount tx={tx} />
+            </li>
+          ))}
+        </ul>
+      )}
     </Card>
   );
 }

@@ -37,12 +37,12 @@ import { PageHeader } from '../components/ui/PageHeader';
 import { AccountSelect } from '../components/shared/AccountSelect';
 import { CategorySelect } from '../components/shared/CategorySelect';
 
-const COLORS = [
-  '#f59e0b',
-  '#8b5cf6',
-  '#10b981',
-  '#f43f5e',
-  '#f97316',
+const CHART_COLORS = [
+  'var(--app-primary)',
+  'var(--app-secondary)',
+  'var(--app-success)',
+  'var(--app-danger)',
+  'var(--app-warning)',
   '#7c3aed',
   '#ca8a04',
   '#db2777',
@@ -214,7 +214,7 @@ export function AnalyticsPage() {
                   key={a.id}
                   type="monotone"
                   dataKey={a.name}
-                  stroke={COLORS[i % COLORS.length]}
+                  stroke={CHART_COLORS[i % CHART_COLORS.length]}
                   strokeWidth={2}
                   dot={false}
                 />
@@ -285,7 +285,7 @@ export function AnalyticsPage() {
                 <PieChart>
                   <Pie data={categoryData} dataKey="amount" nameKey="category" cx="50%" cy="50%" outerRadius={80}>
                     {categoryData.map((_, i) => (
-                      <Cell key={i} fill={COLORS[i % COLORS.length]} />
+                      <Cell key={i} fill={CHART_COLORS[i % CHART_COLORS.length]} />
                     ))}
                   </Pie>
                   <Tooltip formatter={(v: number) => formatMoney(v)} />
