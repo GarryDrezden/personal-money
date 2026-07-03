@@ -4,6 +4,7 @@ import { useSummaries, useBudgetStore, useCurrentMonthSummary } from '../store/b
 import { formatDelta, formatMoney, topExpenseNames, yearTotals } from '../utils/budget';
 import { formatYearMonth } from '../constants/categories';
 import { StatTile } from '../components/ui/StatTile';
+import { PageHeader } from '../components/ui/PageHeader';
 import {
   AccountCards,
   AttentionBlock,
@@ -43,12 +44,10 @@ export function DashboardPage() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold">Главная</h1>
-        <p className="text-sm text-[var(--app-text-muted)]">
-          {current ? formatYearMonth(current.yearMonth) : ''} · ежедневный учёт
-        </p>
-      </div>
+      <PageHeader
+        title="Главная"
+        subtitle={`${current ? formatYearMonth(current.yearMonth) : ''} · ежедневный учёт`}
+      />
 
       <AttentionBlock />
       <AccountCards />

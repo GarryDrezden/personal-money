@@ -5,6 +5,7 @@ import type { ThemeId } from '../types';
 import { useBudgetStore } from '../store/budgetStore';
 import { apiRepository } from '../store/apiRepository';
 import { Card } from '../components/ui/Card';
+import { PageHeader } from '../components/ui/PageHeader';
 import {
   AccountsEditor,
   CategoriesEditor,
@@ -76,23 +77,21 @@ export function SettingsPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-wrap items-start justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-bold">Настройки</h1>
-          <p className="text-sm text-[var(--app-text-muted)]">
-            Счета, категории, импорт и оформление
-          </p>
-        </div>
-        <Link
-          to="/faq"
-          className="inline-flex items-center gap-1.5 rounded-lg border border-[var(--app-border)] px-3 py-2 text-sm text-[var(--app-text-muted)] hover:bg-[var(--app-bg-soft)] hover:text-[var(--app-text)]"
-        >
-          <HelpCircle size={16} />
-          Справка
-        </Link>
-      </div>
+      <PageHeader
+        title="Настройки"
+        subtitle="Счета, категории, импорт и оформление"
+        actions={
+          <Link
+            to="/faq"
+            className="surface-chip inline-flex items-center gap-1.5 px-3 py-2 text-sm text-[var(--app-text-muted)] hover:text-[var(--app-text)]"
+          >
+            <HelpCircle size={16} />
+            Справка
+          </Link>
+        }
+      />
 
-      <div className="flex gap-1 overflow-x-auto rounded-xl border border-[var(--app-border)] bg-[var(--app-bg-soft)] p-1">
+      <div className="surface-panel flex gap-1 overflow-x-auto p-1">
         {TABS.map(({ id, label, icon: Icon }) => (
           <button
             key={id}

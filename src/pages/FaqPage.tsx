@@ -10,6 +10,7 @@ import {
   Wallet,
 } from 'lucide-react';
 import { Card } from '../components/ui/Card';
+import { PageHeader } from '../components/ui/PageHeader';
 import { AppLogo } from '../components/shared/AppLogo';
 
 const SECTIONS = [
@@ -118,25 +119,19 @@ const FAQ = [
 export function FaqPage() {
   return (
     <div className="space-y-6">
-      <div className="flex flex-wrap items-center gap-4">
-        <Link
-          to="/settings"
-          className="inline-flex items-center gap-1 text-sm text-[var(--app-text-muted)] hover:text-[var(--app-primary)]"
-        >
-          <ArrowLeft size={16} />
-          Настройки
-        </Link>
-      </div>
+      <Link
+        to="/settings"
+        className="surface-chip inline-flex items-center gap-1 px-3 py-2 text-sm text-[var(--app-text-muted)] hover:text-[var(--app-primary)]"
+      >
+        <ArrowLeft size={16} />
+        Настройки
+      </Link>
 
-      <div className="flex flex-col items-center gap-3 text-center sm:flex-row sm:text-left">
-        <AppLogo size={48} />
-        <div>
-          <h1 className="text-2xl font-bold">Справка</h1>
-          <p className="text-sm text-[var(--app-text-muted)]">
-            Как пользоваться «Личный бюджет»
-          </p>
-        </div>
-      </div>
+      <PageHeader
+        title="Справка"
+        subtitle="Как пользоваться «Личный бюджет»"
+        actions={<AppLogo size={48} showText={false} />}
+      />
 
       <div className="grid gap-4 lg:grid-cols-2">
         {SECTIONS.map(({ icon: Icon, title, items }) => (

@@ -3,9 +3,10 @@
 :root,
 [data-theme='cozy'] {
   --app-bg: #ffe4ef;
-  --app-bg-soft: rgba(255, 255, 255, 0.94);
-  --app-card: rgba(255, 255, 255, 0.9);
-  --app-card-strong: rgba(255, 255, 255, 0.96);
+  --app-bg-soft: rgba(255, 255, 255, 0.96);
+  --app-card: rgba(255, 255, 255, 0.93);
+  --app-card-strong: rgba(255, 255, 255, 0.97);
+  --app-surface: rgba(255, 255, 255, 0.94);
   --app-border: rgba(244, 114, 182, 0.28);
   --app-text: #0f172a;
   --app-text-muted: #64748b;
@@ -27,6 +28,7 @@
   --app-bg-soft: #111022;
   --app-card: rgba(24, 20, 44, 0.82);
   --app-card-strong: #171329;
+  --app-surface: rgba(24, 20, 44, 0.92);
   --app-border: rgba(196, 181, 253, 0.18);
   --app-text: #f8fafc;
   --app-text-muted: #b8b5d6;
@@ -46,9 +48,10 @@
 /* legacy fallback */
 [data-theme='light'] {
   --app-bg: #ffe4ef;
-  --app-bg-soft: rgba(255, 255, 255, 0.94);
-  --app-card: rgba(255, 255, 255, 0.9);
-  --app-card-strong: rgba(255, 255, 255, 0.96);
+  --app-bg-soft: rgba(255, 255, 255, 0.96);
+  --app-card: rgba(255, 255, 255, 0.93);
+  --app-card-strong: rgba(255, 255, 255, 0.97);
+  --app-surface: rgba(255, 255, 255, 0.94);
   --app-border: rgba(244, 114, 182, 0.28);
   --app-text: #0f172a;
   --app-text-muted: #64748b;
@@ -70,6 +73,7 @@
   --app-bg-soft: #111022;
   --app-card: rgba(24, 20, 44, 0.82);
   --app-card-strong: #171329;
+  --app-surface: rgba(24, 20, 44, 0.92);
   --app-border: rgba(196, 181, 253, 0.18);
   --app-text: #f8fafc;
   --app-text-muted: #b8b5d6;
@@ -104,6 +108,34 @@ body {
 
 #root {
   @apply min-h-screen;
+}
+
+.surface-panel {
+  border-radius: 0.75rem;
+  border: 1px solid var(--app-border);
+  background: var(--app-surface, var(--app-card-strong));
+  padding: 1rem 1.25rem;
+  box-shadow: var(--app-shadow);
+}
+
+[data-theme='cozy'] .surface-panel,
+[data-theme='light'] .surface-panel {
+  background: rgba(255, 255, 255, 0.94);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+.surface-chip {
+  border-radius: 0.5rem;
+  border: 1px solid var(--app-border);
+  background: var(--app-surface, var(--app-card-strong));
+}
+
+[data-theme='cozy'] .surface-chip,
+[data-theme='light'] .surface-chip {
+  background: rgba(255, 255, 255, 0.94);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
 }
 
 .nav-link-active {

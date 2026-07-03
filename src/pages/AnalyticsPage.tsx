@@ -31,6 +31,7 @@ import {
 } from '../utils/budget';
 import { formatYearMonth } from '../constants/categories';
 import { Card } from '../components/ui/Card';
+import { PageHeader } from '../components/ui/PageHeader';
 import { AccountSelect } from '../components/shared/AccountSelect';
 import { CategorySelect } from '../components/shared/CategorySelect';
 
@@ -149,11 +150,7 @@ export function AnalyticsPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-wrap items-end justify-between gap-3">
-        <div>
-          <h1 className="text-2xl font-bold">Аналитика</h1>
-          <p className="text-sm text-[var(--app-text-muted)]">Счета, категории, кредитка</p>
-        </div>
+      <PageHeader title="Аналитика" subtitle="Счета, категории, кредитка">
         <div className="flex flex-wrap gap-2">
           <label className="flex flex-col gap-1 text-sm">
             Год
@@ -172,7 +169,7 @@ export function AnalyticsPage() {
             <CategorySelect value={categoryFilter} onChange={setCategoryFilter} type="all" />
           </label>
         </div>
-      </div>
+      </PageHeader>
 
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         <Card>

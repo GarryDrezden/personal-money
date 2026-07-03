@@ -3,6 +3,7 @@ import { Link, useSearchParams } from 'react-router-dom';
 import type { LedgerFilters as LedgerFiltersState } from '../types';
 import { DEFAULT_LEDGER_FILTERS } from '../types';
 import { useSummaries, useBudgetStore } from '../store/budgetStore';
+import { PageHeader } from '../components/ui/PageHeader';
 import { MonthAccordion } from '../components/ledger/MonthAccordion';
 import { QuickTransactionForm } from '../components/ledger/QuickTransactionForm';
 import { LedgerFilters } from '../components/ledger/LedgerFilters';
@@ -84,12 +85,10 @@ export function LedgerPage() {
   return (
     <ErrorBoundary title="Ошибка в журнале">
       <div className="space-y-4">
-        <div>
-          <h1 className="text-2xl font-bold">Журнал</h1>
-          <p className="text-sm text-[var(--app-text-muted)]">
-            {months.length} месяцев · быстрый ввод и фильтры
-          </p>
-        </div>
+        <PageHeader
+          title="Журнал"
+          subtitle={`${months.length} месяцев · быстрый ввод и фильтры`}
+        />
 
         {activeMonthId && <QuickTransactionForm monthId={activeMonthId} />}
         <LedgerFilters />
