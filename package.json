@@ -6,7 +6,9 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc -p tsconfig.app.json --noEmit && vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "test": "vitest",
+    "test:run": "vitest run"
   },
   "dependencies": {
     "date-fns": "^4.1.0",
@@ -24,6 +26,7 @@
     "@vitejs/plugin-react": "^4.5.0",
     "tailwindcss": "^4.1.8",
     "typescript": "~5.8.3",
-    "vite": "^6.3.5"
+    "vite": "^6.3.5",
+    "vitest": "^3.2.4"
   }
 }

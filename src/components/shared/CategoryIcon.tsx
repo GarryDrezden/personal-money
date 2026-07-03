@@ -2,8 +2,9 @@ import type { LucideProps } from 'lucide-react';
 import { useBudgetStore } from '../../store/budgetStore';
 import { categoryName } from '../../utils/budget';
 import { resolveCategoryIconComponent } from '../../utils/categoryIcons';
+import { colorHex } from '../../utils/icons';
 
-interface CategoryIconProps extends Omit<LucideProps, 'ref'> {
+interface CategoryIconProps extends Omit<LucideProps, 'ref' | 'color'> {
   categoryId?: string | null;
   legacyName?: string | null;
 }
@@ -16,15 +17,23 @@ export function CategoryIcon({
   ...props
 }: CategoryIconProps) {
   const categories = useBudgetStore((s) => s.categories);
+  const cat = categoryId ? categories.find((c) => c.id === categoryId) : undefined;
   const Icon = resolveCategoryIconComponent(categories, categoryId, legacyName);
+  const tint = colorHex(cat?.color ?? 'pink');
+  const box = Number(size) + 10;
 
   return (
-    <Icon
-      size={size}
-      className={`shrink-0 text-[var(--app-primary)] ${className}`.trim()}
-      aria-hidden
-      {...props}
-    />
+    <span
+      className={`cozy-icon-badge inline-flex shrink-0 items-center justify-center rounded-lg ${className}`.trim()}
+      style={{
+        width: box,
+        height: box,
+        backgroundColor: `${tint}22`,
+        color: tint,
+      }}
+    >
+      <Icon size={size} aria-hidden {...props} />
+    </span>
   );
 }
 

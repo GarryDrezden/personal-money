@@ -4,16 +4,22 @@ import { Inbox } from 'lucide-react';
 import {
   useBudgetStore,
   useCurrentMonthSummary,
+  useSummaries,
 } from '../../store/budgetStore';
 import {
   creditDebtAmount,
+  formatDelta,
   formatMoney,
   getAllAccountsSummary,
+  getPreviousMonthSummary,
   getRecentTransactions,
+  getTotalAccountsBalance,
   getTransactionsWithoutAccount,
   getUncategorizedTransactions,
+  percentChange,
 } from '../../utils/budget';
 import { getActiveCreditAccounts } from '../../utils/accounts';
+import { useMonthCategorySummaries } from '../../store/selectors';
 import { Card } from '../ui/Card';
 import { EmptyState } from '../ui/EmptyState';
 import { AccountIcon } from '../shared/AccountIcon';
@@ -23,7 +29,6 @@ import { CategoryIcon } from '../shared/CategoryIcon';
 import { CreditCardCard } from '../shared/CreditCardCard';
 import { CreditReconcileModal } from '../ledger/CreditReconcileModal';
 import { TransactionAmount } from '../shared/TransactionAmount';
-import { useMonthCategorySummaries } from '../../store/selectors';
 import type { AccountMonthSummary } from '../../types';
 
 export interface AttentionIssue {
@@ -185,6 +190,28 @@ export function AttentionBlock({ className = '' }: { className?: string }) {
   const months = useBudgetStore((s) => s.months);
   const accounts = useBudgetStore((s) => s.accounts);
   const current = useCurrentMonthSummary();
+  const summaries = useSummaries();
+  const categoryItems = useMonthCategorySummaries(current?.monthId ?? '');
+
+  const prevSummary = useMemo(
+    () => (current ? getPreviousMonthSummary(summaries, current.monthId) : undefined),
+    [summaries, current],
+  );
+
+  const totalBalance = useMemo(() => {
+    if (!current) return 0;
+    return getTotalAccountsBalance(transactions, months, current.monthId, accounts);
+  }, [transactions, months, accounts, current]);
+
+  const expenseChange = prevSummary ? percentChange(current?.expenses ?? 0, prevSummary.expenses) : null;
+
+  const tightestLimit = useMemo(() => {
+    const withLimits = categoryItems.filter((c) => c.monthlyLimit != null && c.monthlyLimit > 0);
+    if (!withLimits.length) return null;
+    return [...withLimits].sort(
+      (a, b) => a.monthlyLimit! - a.amount - (b.monthlyLimit! - b.amount),
+    )[0];
+  }, [categoryItems]);
 
   const issues = useMemo((): AttentionIssue[] => {
     const list: AttentionIssue[] = [];
@@ -234,10 +261,70 @@ export function AttentionBlock({ className = '' }: { className?: string }) {
   }, [transactions, months, accounts, current]);
 
   if (!issues.length) {
+    const limitRemaining =
+      tightestLimit && tightestLimit.monthlyLimit != null
+        ? tightestLimit.monthlyLimit - tightestLimit.amount
+        : null;
+
     return (
       <Card variant="success" className={`flex h-full flex-col justify-center ${className}`.trim()}>
         <h2 className="font-semibold">Всё в порядке</h2>
-        <p className="mt-1 text-sm text-[var(--app-text-muted)]">Нет срочных замечаний</p>
+        {current ? (
+          <ul className="mt-2 space-y-1.5 text-sm">
+            <li>
+              <span className="text-[var(--app-text-muted)]">На счетах: </span>
+              <span className="font-semibold tabular-nums">{formatMoney(totalBalance)}</span>
+            </li>
+            <li>
+              <span className="text-[var(--app-text-muted)]">Месяц: </span>
+              <span className="tabular-nums">
+                расходы {formatMoney(current.expenses)}
+                {current.delta !== 0 && (
+                  <>
+                    {' '}
+                    · Δ{' '}
+                    <span
+                      className={
+                        current.delta >= 0 ? 'text-[var(--app-success)]' : 'text-[var(--app-danger)]'
+                      }
+                    >
+                      {formatDelta(current.delta)}
+                    </span>
+                  </>
+                )}
+              </span>
+            </li>
+            {expenseChange != null && (
+              <li className="text-[var(--app-text-muted)]">
+                К прошлому месяцу:{' '}
+                <span
+                  className={
+                    expenseChange > 0 ? 'text-[var(--app-danger)]' : 'text-[var(--app-success)]'
+                  }
+                >
+                  {expenseChange > 0 ? '+' : ''}
+                  {expenseChange.toFixed(0)}% расходов
+                </span>
+              </li>
+            )}
+            {limitRemaining != null && (
+              <li className="text-[var(--app-text-muted)]">
+                «{tightestLimit!.name}»: осталось{' '}
+                <span
+                  className={
+                    limitRemaining < 0
+                      ? 'font-medium text-[var(--app-danger)]'
+                      : 'font-medium text-[var(--app-text)]'
+                  }
+                >
+                  {formatMoney(limitRemaining)}
+                </span>
+              </li>
+            )}
+          </ul>
+        ) : (
+          <p className="mt-1 text-sm text-[var(--app-text-muted)]">Нет срочных замечаний</p>
+        )}
       </Card>
     );
   }

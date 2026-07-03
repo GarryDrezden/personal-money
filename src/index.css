@@ -138,6 +138,37 @@ body {
   background-attachment: fixed;
 }
 
+/* Милые бейджи иконок в уютной теме (kawaii, без Hello Kitty IP) */
+[data-theme='cozy'] .cozy-icon-badge,
+[data-theme='light'] .cozy-icon-badge {
+  border-radius: 9999px;
+  border: 2px solid rgba(255, 255, 255, 0.85);
+  box-shadow:
+    0 2px 8px rgba(244, 114, 182, 0.22),
+    inset 0 1px 0 rgba(255, 255, 255, 0.6);
+  position: relative;
+}
+
+[data-theme='cozy'] .cozy-icon-badge::after,
+[data-theme='light'] .cozy-icon-badge::after {
+  content: '';
+  position: absolute;
+  top: -3px;
+  right: -2px;
+  width: 7px;
+  height: 7px;
+  border-radius: 9999px;
+  background: linear-gradient(135deg, #fbcfe8, #f472b6);
+  border: 1.5px solid #fff;
+  box-shadow: 0 1px 3px rgba(244, 114, 182, 0.35);
+  pointer-events: none;
+}
+
+[data-theme='darkFantasy'] .cozy-icon-badge,
+[data-theme='dark'] .cozy-icon-badge {
+  border-radius: 0.5rem;
+}
+
 #root {
   @apply min-h-screen;
 }

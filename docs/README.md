@@ -14,6 +14,7 @@
 | [08-deployment-operations.md](./08-deployment-operations.md) | Прод, CI/CD, локальная разработка |
 | [09-development-history.md](./09-development-history.md) | История спринтов и коммитов |
 | [10-review-checklist.md](./10-review-checklist.md) | Известные пробелы + промпт для AI-ревьюера |
+| [11-testing-plan.md](./11-testing-plan.md) | План автотестов расчётов (Vitest) |
 
 ---
 

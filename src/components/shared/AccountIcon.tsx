@@ -19,7 +19,7 @@ export function AccountIcon({
 
   return (
     <span
-      className={`inline-flex shrink-0 items-center justify-center rounded-lg ${className}`.trim()}
+      className={`cozy-icon-badge inline-flex shrink-0 items-center justify-center rounded-lg ${className}`.trim()}
       style={{
         width: box,
         height: box,
