@@ -7,6 +7,7 @@ import {
 } from '../../utils/budget';
 import { useBudgetStore } from '../../store/budgetStore';
 import { Card } from '../ui/Card';
+import { AccountIcon } from './AccountIcon';
 import { ProgressBar } from './ProgressBar';
 
 interface CreditCardCardProps {
@@ -45,8 +46,9 @@ export function CreditCardCard({
 
   return (
     <Card variant={variant}>
-      <div className="text-xs font-medium uppercase text-[var(--app-text-muted)]">
-        {account.name}
+      <div className="flex items-center gap-2 text-xs font-medium uppercase text-[var(--app-text-muted)]">
+        <AccountIcon icon={account.icon} accountColor={account.color} size={14} />
+        <span className="truncate">{account.name}</span>
       </div>
       <div className={`mt-1 font-bold ${compact ? 'text-lg' : 'text-xl'}`}>
         долг {formatMoney(debt)}

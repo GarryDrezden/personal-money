@@ -41,7 +41,7 @@ export function CreditReconcileModal({ monthId, summary, onClose }: CreditReconc
 
     setBusy(true);
     try {
-      await reconcileCreditCard(monthId, target);
+      await reconcileCreditCard(monthId, target, summary.accountId);
       onClose();
     } catch (e) {
       showToast(e instanceof Error ? e.message : 'Ошибка', 'error');

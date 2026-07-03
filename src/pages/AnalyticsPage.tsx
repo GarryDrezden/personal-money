@@ -30,6 +30,7 @@ import {
   topIncomeSources,
 } from '../utils/budget';
 import { formatYearMonth } from '../constants/categories';
+import { getPrimaryCreditAccount } from '../utils/accounts';
 import { Card } from '../components/ui/Card';
 import { PageHeader } from '../components/ui/PageHeader';
 import { AccountSelect } from '../components/shared/AccountSelect';
@@ -117,17 +118,21 @@ export function AnalyticsPage() {
     });
   }, [yearSummaries, transactions, months, accounts]);
 
+  const primaryCredit = useMemo(() => getPrimaryCreditAccount(accounts), [accounts]);
+
   const creditCardData = useMemo(
-    () =>
-      yearSummaries.map((s) => {
-        const cc = getCreditCardSummary(transactions, s.monthId, 'credit_card', months);
+    () => {
+      if (!primaryCredit) return [];
+      return yearSummaries.map((s) => {
+        const cc = getCreditCardSummary(transactions, s.monthId, primaryCredit.id, months);
         return {
           name: formatYearMonth(s.yearMonth).replace(/\s\d{4}$/, ''),
           spending: Math.round(cc.spending),
           payments: Math.round(cc.payments),
         };
-      }),
-    [yearSummaries, transactions, months],
+      });
+    },
+    [yearSummaries, transactions, months, primaryCredit],
   );
 
   const uncategorized = getUncategorizedTransactions(

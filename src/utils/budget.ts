@@ -425,7 +425,7 @@ export function getCategoryMonthSummary(
 export function getCreditCardSummary(
   transactions: Transaction[],
   monthId: string,
-  accountId = 'credit_card',
+  accountId: string,
   months?: BudgetMonth[],
 ): { spending: number; payments: number; refunds: number; debtChange: number } {
   const monthTx = getMonthTransactions(transactions, monthId, months).filter((tx) => !isIgnored(tx));

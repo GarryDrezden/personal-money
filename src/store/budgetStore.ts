@@ -89,7 +89,7 @@ interface BudgetState extends BudgetData {
   bulkUpdateTransactions: (ids: string[], patch: Partial<Transaction>) => Promise<void>;
   saveCategoryTotals: (monthId: string, totals: { category: string; amount: number }[]) => Promise<void>;
   alignMonthBalance: (monthId: string) => Promise<void>;
-  reconcileCreditCard: (monthId: string, targetAvailable: number) => Promise<void>;
+  reconcileCreditCard: (monthId: string, targetAvailable: number, accountId: string) => Promise<void>;
   saveSettings: (patch: Partial<AppSettings>) => Promise<void>;
   saveAccount: (account: Partial<Account> & { id?: string }) => Promise<void>;
   deleteAccount: (id: string) => Promise<void>;
@@ -297,10 +297,10 @@ export const useBudgetStore = create<BudgetState>((set, get) => ({
     get().showToast('Баланс выровнен');
   },
 
-  reconcileCreditCard: async (monthId, targetAvailable) => {
+  reconcileCreditCard: async (monthId, targetAvailable, accountId) => {
     const { transactions, months, accounts } = get();
     const credit = getAllAccountsSummary(transactions, months, monthId, accounts).find(
-      (s) => s.accountId === 'credit_card',
+      (s) => s.accountId === accountId,
     );
     if (!credit) return;
 
@@ -314,7 +314,7 @@ export const useBudgetStore = create<BudgetState>((set, get) => ({
     const tx = await apiRepository.createTransaction({
       monthId,
       operationKind: 'correction',
-      accountId: 'credit_card',
+      accountId,
       categoryId: 'correction',
       txDate: new Date().toISOString().slice(0, 10),
       paymentStatus: 'done',

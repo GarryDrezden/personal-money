@@ -1,5 +1,6 @@
 import { useMemo } from 'react';
 import { useBudgetStore } from './budgetStore';
+import { getPrimaryCreditAccount } from '../utils/accounts';
 import {
   getAllAccountsSummary,
   getCategoryMonthSummary,
@@ -45,7 +46,15 @@ export function useMonthCategorySummaries(monthId: string) {
   }, [transactions, months, monthId, categories, categoryTotals, initialOpeningBalance, accounts]);
 }
 
-export function useMonthCreditCardSummary(monthId: string) {
+export function useMonthCreditCardSummary(monthId: string, accountId?: string) {
   const transactions = useBudgetStore((s) => s.transactions);
-  return useMemo(() => getCreditCardSummary(transactions, monthId), [transactions, monthId]);
+  const months = useBudgetStore((s) => s.months);
+  const accounts = useBudgetStore((s) => s.accounts);
+  return useMemo(() => {
+    const id = accountId ?? getPrimaryCreditAccount(accounts)?.id;
+    if (!id) {
+      return { spending: 0, payments: 0, refunds: 0, debtChange: 0 };
+    }
+    return getCreditCardSummary(transactions, monthId, id, months);
+  }, [transactions, monthId, months, accounts, accountId]);
 }

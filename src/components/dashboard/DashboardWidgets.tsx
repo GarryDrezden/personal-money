@@ -12,7 +12,9 @@ import {
   getTransactionsWithoutAccount,
   getUncategorizedTransactions,
 } from '../../utils/budget';
+import { getActiveCreditAccounts } from '../../utils/accounts';
 import { Card } from '../ui/Card';
+import { AccountIcon } from '../shared/AccountIcon';
 import { QuickTransactionForm } from '../ledger/QuickTransactionForm';
 import { CategorySummary } from '../ledger/CategorySummary';
 import { CategoryIcon } from '../shared/CategoryIcon';
@@ -52,13 +54,17 @@ export function AccountCards() {
   return (
     <>
       <div>
-      <div className="mb-3">
-        <h2 className="font-semibold">Карты и счета</h2>
-      </div>
+        <div className="mb-3">
+          <h2 className="font-semibold">Карты и счета</h2>
+        </div>
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
           {summaries.map((s) => {
             const acc = accountMap.get(s.accountId);
             const isCredit = acc?.type === 'credit';
+            const ledgerLink = buildLedgerLink({
+              month: current.monthId,
+              accountId: s.accountId,
+            });
 
             if (isCredit && acc) {
               return (
@@ -74,13 +80,20 @@ export function AccountCards() {
             }
 
             return (
-              <Card key={s.accountId}>
-                <div className="text-xs uppercase text-[var(--app-text-muted)]">{acc?.name}</div>
-                <div className="mt-1 text-xl font-bold">{formatMoney(s.closingBalance)}</div>
-                <div className="text-xs text-[var(--app-text-muted)]">
-                  расходы {formatMoney(s.expenses)}
-                </div>
-              </Card>
+              <Link key={s.accountId} to={ledgerLink} className="block transition-opacity hover:opacity-90">
+                <Card className="h-full">
+                  <div className="flex items-center gap-2">
+                    <AccountIcon icon={acc?.icon} accountColor={acc?.color} size={16} />
+                    <div className="min-w-0 text-xs font-medium uppercase text-[var(--app-text-muted)] truncate">
+                      {acc?.name}
+                    </div>
+                  </div>
+                  <div className="mt-2 text-xl font-bold tabular-nums">{formatMoney(s.closingBalance)}</div>
+                  <div className="text-xs text-[var(--app-text-muted)]">
+                    расходы {formatMoney(s.expenses)}
+                  </div>
+                </Card>
+              </Link>
             );
           })}
         </div>
@@ -196,16 +209,17 @@ export function AttentionBlock() {
         current.monthId,
         accounts,
       );
-      const credit = accountSummaries.find((s) => s.accountId === 'credit_card');
-      if (credit) {
+      for (const creditAccount of getActiveCreditAccounts(accounts)) {
+        const credit = accountSummaries.find((s) => s.accountId === creditAccount.id);
+        if (!credit) continue;
         const debt = creditDebtAmount(credit);
-        const limit = credit.creditLimit ?? 380_000;
-        const threshold = Math.max(100_000, limit * 0.3);
+        const limit = credit.creditLimit ?? creditAccount.creditLimit ?? 0;
+        const threshold = limit > 0 ? Math.max(50_000, limit * 0.3) : 100_000;
         if (debt > threshold) {
           list.push({
-            id: 'creditDebt',
-            label: `Долг по кредитке: ${formatMoney(debt)}`,
-            to: buildLedgerLink({ month: current.monthId }),
+            id: `creditDebt-${creditAccount.id}`,
+            label: `${creditAccount.name}: долг ${formatMoney(debt)}`,
+            to: buildLedgerLink({ month: current.monthId, accountId: creditAccount.id }),
           });
         }
       }
