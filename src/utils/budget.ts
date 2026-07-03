@@ -123,6 +123,20 @@ export function getMonthRpgStatus(delta: number): MonthRpgStatus {
   return 'neutral';
 }
 
+export function getPreviousMonthSummary(
+  summaries: MonthSummary[],
+  currentMonthId: string,
+): MonthSummary | undefined {
+  const sorted = [...summaries].sort((a, b) => a.yearMonth.localeCompare(b.yearMonth));
+  const idx = sorted.findIndex((s) => s.monthId === currentMonthId);
+  return idx > 0 ? sorted[idx - 1] : undefined;
+}
+
+export function percentChange(current: number, previous: number): number | null {
+  if (previous <= 0) return null;
+  return ((current - previous) / previous) * 100;
+}
+
 export function buildMonthSummaries(
   months: BudgetMonth[],
   transactions: Transaction[],

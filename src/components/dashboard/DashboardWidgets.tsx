@@ -9,7 +9,6 @@ import {
   formatMoney,
   getAllAccountsSummary,
   getRecentTransactions,
-  getTotalAccountsBalance,
   getTransactionsWithoutAccount,
   getUncategorizedTransactions,
 } from '../../utils/budget';
@@ -46,11 +45,6 @@ export function AccountCards() {
     return getAllAccountsSummary(transactions, months, current.monthId, accounts);
   }, [transactions, months, accounts, current]);
 
-  const totalBalance = useMemo(() => {
-    if (!current) return 0;
-    return getTotalAccountsBalance(transactions, months, current.monthId, accounts);
-  }, [transactions, months, accounts, current]);
-
   const accountMap = useMemo(() => new Map(accounts.map((a) => [a.id, a])), [accounts]);
 
   if (!current || !summaries.length) return null;
@@ -58,13 +52,9 @@ export function AccountCards() {
   return (
     <>
       <div>
-        <div className="mb-3 flex flex-wrap items-end justify-between gap-2">
-          <h2 className="font-semibold">Карты и счета</h2>
-          <span className="text-sm text-[var(--app-text-muted)]">
-            Общий баланс:{' '}
-            <strong className="text-[var(--app-text)]">{formatMoney(totalBalance)}</strong>
-          </span>
-        </div>
+      <div className="mb-3">
+        <h2 className="font-semibold">Карты и счета</h2>
+      </div>
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
           {summaries.map((s) => {
             const acc = accountMap.get(s.accountId);
