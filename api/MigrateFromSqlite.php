@@ -25,6 +25,24 @@ class MigrateFromSqlite
         return $counts;
     }
 
+    /** SQLite с реальными данными бюджета обычно >500 KB и сотни месяцев/транзакций. */
+    public static function validateSqliteHasData(array $counts, int $fileBytes): ?string
+    {
+        $months = $counts['budget_months'] ?? 0;
+        $tx = $counts['transactions'] ?? 0;
+
+        if ($months > 0 || $tx > 0) {
+            return null;
+        }
+
+        if ($fileBytes < 200000) {
+            return 'SQLite file looks EMPTY (only ' . number_format($fileBytes) . ' bytes, 0 months, 0 transactions). '
+                . 'Upload the correct backup (~1 MB): personal-budget.sqlite from your old PC or data/backups/personal-budget-*.sqlite';
+        }
+
+        return 'SQLite has 0 months and 0 transactions. Check that you uploaded the correct database file.';
+    }
+
     public static function run(
         PDO $sqlite,
         PDO $mysql,
@@ -33,6 +51,7 @@ class MigrateFromSqlite
         bool $force = false,
         string $username = 'GarryDrezden',
         string $password = '123456',
+        int $sqliteFileBytes = 0,
     ): array {
         $lines = [];
         $sqlitePath = '(uploaded sqlite)';
@@ -46,6 +65,12 @@ class MigrateFromSqlite
             $lines[] = '';
             $lines[] = 'Dry-run complete. No changes written.';
             return ['ok' => true, 'dryRun' => true, 'lines' => $lines];
+        }
+
+        $counts = self::countSqliteTables($sqlite);
+        $emptyError = self::validateSqliteHasData($counts, $sqliteFileBytes);
+        if ($emptyError !== null && !$force) {
+            return ['ok' => false, 'lines' => $lines, 'error' => $emptyError];
         }
 
         $existing = $mysql->prepare('SELECT id FROM users WHERE username = :u');

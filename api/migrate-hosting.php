@@ -97,7 +97,7 @@ if ($ran && is_readable($sqlitePath)) {
         $db = new Database();
         $mysql = $db->getPdo();
 
-        $result = MigrateFromSqlite::run($sqlite, $mysql, $db, $dryRun, $force);
+        $result = MigrateFromSqlite::run($sqlite, $mysql, $db, $dryRun, $force, 'GarryDrezden', '123456', (int) filesize($sqlitePath));
         $log = array_merge($log, $result['lines']);
         if (!$result['ok']) {
             $log[] = 'ERROR: ' . ($result['error'] ?? 'unknown');
@@ -142,6 +142,13 @@ header('Content-Type: text/html; charset=utf-8');
   <h2>1. Файл базы</h2>
   <?php if ($hasFile): ?>
     <p>Найден: <code>data/personal-budget.sqlite</code> (<?= number_format($fileSize) ?> байт)</p>
+    <?php if ($fileSize < 200000): ?>
+    <div class="warn">
+      <strong>Файл слишком маленький.</strong> Пустая база ~80 KB. Нужен бэкап <strong>~1 000 000 байт (1 MB)</strong>
+      с ПК: <code>personal-budget.sqlite</code> или <code>data/backups/personal-budget-2026-07-03.sqlite</code>.
+      Замените файл через FTP и сделайте dry-run — должны быть сотни transactions и десятки budget_months.
+    </div>
+    <?php endif; ?>
   <?php else: ?>
     <p>Файл не найден. Загрузите через FTP в <code>data/personal-budget.sqlite</code> или формой:</p>
     <form method="post" enctype="multipart/form-data">
