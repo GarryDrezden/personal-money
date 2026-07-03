@@ -24,6 +24,8 @@ jobs:
           cp -r dist/* deploy-bundle/
           cp -r api deploy-bundle/api
           cp .htaccess deploy-bundle/
+          mkdir -p deploy-bundle/data
+          cp data/.htaccess deploy-bundle/data/
           rm -f deploy-bundle/api/config.php
 
       - name: FTP deploy

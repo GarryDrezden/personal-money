@@ -16,4 +16,8 @@ return [
 
   'APP_URL' => 'http://where-is-the-money.ru',
   'APP_HTTPS' => false,
+
+  // Секрет для одноразовой миграции: /api/migrate-hosting.php?key=...
+  // Удалите migrate-hosting.php после переноса данных.
+  'MIGRATE_SECRET' => 'change-me-to-random-string',
 ];

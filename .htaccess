@@ -2,6 +2,9 @@
   RewriteEngine On
   RewriteBase /
 
+  # Прямой доступ к миграции и health (не через index.php)
+  RewriteRule ^api/migrate-hosting\.php$ - [L]
+
   # API → PHP front controller
   RewriteRule ^api/(.*)$ api/index.php [L,QSA]
 
