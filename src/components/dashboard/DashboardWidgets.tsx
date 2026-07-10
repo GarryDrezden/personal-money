@@ -8,7 +8,6 @@ import {
 } from '../../store/budgetStore';
 import {
   creditDebtAmount,
-  formatDelta,
   formatMoney,
   getAllAccountsSummary,
   getPreviousMonthSummary,
@@ -29,6 +28,7 @@ import { CategoryIcon } from '../shared/CategoryIcon';
 import { CreditCardCard } from '../shared/CreditCardCard';
 import { CreditReconcileModal } from '../ledger/CreditReconcileModal';
 import { TransactionAmount } from '../shared/TransactionAmount';
+import { DeltaAmount, MoneyAmount } from '../shared/MoneyAmount';
 import type { AccountMonthSummary } from '../../types';
 
 export interface AttentionIssue {
@@ -91,9 +91,11 @@ export function AccountCards() {
                       {acc?.name}
                     </div>
                   </div>
-                  <div className="mt-2 text-xl font-bold tabular-nums">{formatMoney(s.closingBalance)}</div>
+                  <div className="mt-2 min-w-0">
+                    <MoneyAmount value={s.closingBalance} size="lg" />
+                  </div>
                   <div className="text-xs text-[var(--app-text-muted)]">
-                    расходы {formatMoney(s.expenses)}
+                    расходы <MoneyAmount value={s.expenses} size="inline" className="inline" />
                   </div>
                 </Card>
               </Link>
@@ -267,40 +269,36 @@ export function AttentionBlock({ className = '' }: { className?: string }) {
         : null;
 
     return (
-      <Card variant="success" className={`flex h-full flex-col justify-center ${className}`.trim()}>
+      <Card variant="success" className={`dashboard-attention-ok flex h-full min-w-0 flex-col justify-center ${className}`.trim()}>
         <h2 className="font-semibold">Всё в порядке</h2>
         {current ? (
-          <ul className="mt-2 space-y-1.5 text-sm">
-            <li>
-              <span className="text-[var(--app-text-muted)]">На счетах: </span>
-              <span className="font-semibold tabular-nums">{formatMoney(totalBalance)}</span>
+          <ul className="mt-2 space-y-2 text-sm">
+            <li className="dashboard-stat-row">
+              <span className="text-[var(--app-text-muted)]">На счетах</span>
+              <MoneyAmount value={totalBalance} size="md" className="dashboard-stat-value" />
             </li>
-            <li>
-              <span className="text-[var(--app-text-muted)]">Месяц: </span>
-              <span className="tabular-nums">
-                расходы {formatMoney(current.expenses)}
+            <li className="dashboard-stat-row dashboard-stat-row--stack">
+              <span className="text-[var(--app-text-muted)]">Месяц</span>
+              <div className="dashboard-stat-value min-w-0 space-y-0.5">
+                <div>
+                  <span className="text-[var(--app-text-muted)]">расходы </span>
+                  <MoneyAmount value={current.expenses} size="sm" tone="danger" className="inline" />
+                </div>
                 {current.delta !== 0 && (
-                  <>
-                    {' '}
-                    · Δ{' '}
-                    <span
-                      className={
-                        current.delta >= 0 ? 'text-[var(--app-success)]' : 'text-[var(--app-danger)]'
-                      }
-                    >
-                      {formatDelta(current.delta)}
-                    </span>
-                  </>
+                  <div>
+                    <span className="text-[var(--app-text-muted)]">Δ </span>
+                    <DeltaAmount value={current.delta} size="sm" className="inline" />
+                  </div>
                 )}
-              </span>
+              </div>
             </li>
             {expenseChange != null && (
-              <li className="text-[var(--app-text-muted)]">
-                К прошлому месяцу:{' '}
+              <li className="dashboard-stat-row">
+                <span className="text-[var(--app-text-muted)]">К прошл. мес.</span>
                 <span
-                  className={
+                  className={`dashboard-stat-value text-right text-sm font-medium ${
                     expenseChange > 0 ? 'text-[var(--app-danger)]' : 'text-[var(--app-success)]'
-                  }
+                  }`}
                 >
                   {expenseChange > 0 ? '+' : ''}
                   {expenseChange.toFixed(0)}% расходов
@@ -308,17 +306,17 @@ export function AttentionBlock({ className = '' }: { className?: string }) {
               </li>
             )}
             {limitRemaining != null && (
-              <li className="text-[var(--app-text-muted)]">
-                «{tightestLimit!.name}»: осталось{' '}
-                <span
-                  className={
-                    limitRemaining < 0
-                      ? 'font-medium text-[var(--app-danger)]'
-                      : 'font-medium text-[var(--app-text)]'
-                  }
-                >
-                  {formatMoney(limitRemaining)}
-                </span>
+              <li className="dashboard-stat-row dashboard-stat-row--stack">
+                <span className="text-[var(--app-text-muted)]">«{tightestLimit!.name}»</span>
+                <div className="dashboard-stat-value min-w-0">
+                  <span className="text-[var(--app-text-muted)]">осталось </span>
+                  <MoneyAmount
+                    value={limitRemaining}
+                    size="sm"
+                    tone={limitRemaining < 0 ? 'danger' : 'default'}
+                    className="inline"
+                  />
+                </div>
               </li>
             )}
           </ul>

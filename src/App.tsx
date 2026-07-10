@@ -4,6 +4,7 @@ import { BrowserRouter, Navigate, Route, Routes, useLocation } from 'react-route
 
 import { AppShell } from './components/layout/AppShell';
 import { OnboardingWizard } from './components/onboarding/OnboardingWizard';
+import { QuickStartModal } from './components/onboarding/QuickStartModal';
 
 import { DashboardPage } from './pages/DashboardPage';
 
@@ -23,6 +24,7 @@ import { useBudgetStore } from './store/budgetStore';
 
 import { useAuthStore } from './store/authStore';
 import { shouldShowOnboarding } from './utils/onboarding';
+import { shouldShowQuickStart } from './utils/quickStart';
 
 
 
@@ -69,11 +71,17 @@ function ProtectedApp() {
   const location = useLocation();
 
   const [onboardingDismissed, setOnboardingDismissed] = useState(false);
+  const [quickStartDismissed, setQuickStartDismissed] = useState(false);
 
   const showOnboarding = useMemo(() => {
     if (!user || loading || onboardingDismissed) return false;
     return shouldShowOnboarding(user.id, transactions.length, settings.importCompletedAt);
   }, [user, loading, onboardingDismissed, transactions.length, settings.importCompletedAt]);
+
+  const showQuickStart = useMemo(() => {
+    if (!user || loading || quickStartDismissed || showOnboarding) return false;
+    return shouldShowQuickStart(user.id);
+  }, [user, loading, quickStartDismissed, showOnboarding]);
 
 
 
@@ -128,7 +136,16 @@ function ProtectedApp() {
       </Routes>
 
       {showOnboarding && user && (
-        <OnboardingWizard userId={user.id} onComplete={() => setOnboardingDismissed(true)} />
+        <OnboardingWizard
+          userId={user.id}
+          onComplete={() => {
+            setOnboardingDismissed(true);
+          }}
+        />
+      )}
+
+      {showQuickStart && user && (
+        <QuickStartModal userId={user.id} onClose={() => setQuickStartDismissed(true)} />
       )}
 
     </>

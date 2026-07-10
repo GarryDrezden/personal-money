@@ -5,6 +5,7 @@ import {
   BookOpen,
   CreditCard,
   Home,
+  Rocket,
   Settings,
   Tag,
   Wallet,
@@ -12,6 +13,7 @@ import {
 import { Card } from '../components/ui/Card';
 import { PageHeader } from '../components/ui/PageHeader';
 import { AppLogo } from '../components/shared/AppLogo';
+import { QuickStartGuide } from '../components/shared/QuickStartGuide';
 
 const SECTIONS = [
   {
@@ -132,6 +134,16 @@ export function FaqPage() {
         subtitle="Как пользоваться «Личный бюджет»"
         actions={<AppLogo size={48} showText={false} />}
       />
+
+      <Card>
+        <div className="flex items-center gap-2">
+          <Rocket size={20} className="text-[var(--app-primary)]" />
+          <h2 className="font-semibold">Быстрый старт</h2>
+        </div>
+        <div className="mt-4">
+          <QuickStartGuide />
+        </div>
+      </Card>
 
       <div className="grid gap-4 lg:grid-cols-2">
         {SECTIONS.map(({ icon: Icon, title, items }) => (

@@ -5,6 +5,7 @@ import {
   formatMoney,
   getCreditCardSummary,
 } from '../../utils/budget';
+import { MoneyAmount } from './MoneyAmount';
 import { useBudgetStore } from '../../store/budgetStore';
 import { Card } from '../ui/Card';
 import { AccountIcon } from './AccountIcon';
@@ -50,12 +51,18 @@ export function CreditCardCard({
         <AccountIcon icon={account.icon} accountColor={account.color} size={14} />
         <span className="truncate">{account.name}</span>
       </div>
-      <div className={`mt-1 font-bold ${compact ? 'text-lg' : 'text-xl'}`}>
-        долг {formatMoney(debt)}
+      <div className={`mt-1 min-w-0 ${compact ? '' : ''}`}>
+        <span className="text-sm font-medium text-[var(--app-text-muted)]">долг </span>
+        <MoneyAmount value={debt} size={compact ? 'md' : 'lg'} />
       </div>
       <div className="text-xs text-[var(--app-text-muted)]">
-        доступно {formatMoney(available)}
-        {limit > 0 && ` · лимит ${formatMoney(limit)}`}
+        доступно <MoneyAmount value={available} size="inline" className="inline" />
+        {limit > 0 && (
+          <>
+            {' '}
+            · лимит <MoneyAmount value={limit} size="inline" className="inline" />
+          </>
+        )}
       </div>
       {limit > 0 && (
         <div className="mt-2">
