@@ -181,7 +181,7 @@ export function AppShell() {
 
       <main className="md:ml-64 pb-20 md:pb-8">
 
-        <div className="mx-auto w-3/4 max-w-full px-4 py-6 sm:px-6 lg:px-8 xl:px-10">
+        <div className="mx-auto w-full max-w-full px-4 py-6 sm:px-6 md:w-3/4 lg:px-8 xl:px-10">
 
           <Outlet />
 
