@@ -7,6 +7,7 @@ import { ToastHost } from '../shared/ToastHost';
 import { AppLogo } from '../shared/AppLogo';
 
 import { QuickAddFab } from './QuickAddFab';
+import { PwaUpdateBanner } from './PwaUpdateBanner';
 
 import { useAuthStore } from '../../store/authStore';
 
@@ -191,6 +192,8 @@ export function AppShell() {
       <BottomNav />
 
       <QuickAddFab />
+
+      <PwaUpdateBanner />
 
       <ToastHost />
 
