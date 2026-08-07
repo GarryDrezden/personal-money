@@ -720,13 +720,24 @@ export function LoansEditor() {
                     {loan.paymentDay != null ? `${loan.paymentDay}-е` : '—'}
                   </td>
                   <td className="py-3 text-right">
-                    <button
-                      type="button"
-                      onClick={() => openEdit(loan)}
-                      className="rounded-lg px-2 py-1 text-xs text-[var(--app-primary)] hover:bg-[var(--app-primary-soft)]"
-                    >
-                      Изменить
-                    </button>
+                    <div className="flex flex-wrap items-center justify-end gap-1">
+                      <button
+                        type="button"
+                        onClick={() => openEdit(loan)}
+                        className="rounded-lg px-2 py-1 text-xs text-[var(--app-primary)] hover:bg-[var(--app-primary-soft)]"
+                      >
+                        Изменить
+                      </button>
+                      <button
+                        type="button"
+                        title="Закрыть кредит"
+                        onClick={() => void handleDelete(loan)}
+                        className="inline-flex items-center gap-1 rounded-lg px-2 py-1 text-xs text-[var(--app-danger)] hover:bg-[var(--app-bg-soft)]"
+                      >
+                        <Trash2 size={14} />
+                        Закрыть
+                      </button>
+                    </div>
                   </td>
                 </tr>
               ))}
