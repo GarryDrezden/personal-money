@@ -73,3 +73,18 @@ CREATE TABLE IF NOT EXISTS app_settings (
 );
 
 INSERT OR IGNORE INTO app_settings (id) VALUES (1);
+
+CREATE TABLE IF NOT EXISTS loans (
+  id TEXT PRIMARY KEY,
+  user_id TEXT NOT NULL,
+  name TEXT NOT NULL,
+  monthly_payment REAL NOT NULL DEFAULT 0,
+  remaining_debt REAL,
+  end_date TEXT,
+  payment_day INTEGER,
+  note TEXT NOT NULL DEFAULT '',
+  is_active INTEGER NOT NULL DEFAULT 1,
+  sort_order INTEGER NOT NULL DEFAULT 0,
+  created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+);

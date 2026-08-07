@@ -91,3 +91,20 @@ CREATE TABLE IF NOT EXISTS app_settings (
   `theme_id` VARCHAR(32) NOT NULL DEFAULT 'cozy',
   CONSTRAINT fk_settings_user FOREIGN KEY (`user_id`) REFERENCES users(`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS loans (
+  `id` CHAR(36) NOT NULL PRIMARY KEY,
+  `user_id` CHAR(36) NOT NULL,
+  `name` VARCHAR(255) NOT NULL,
+  `monthly_payment` DECIMAL(14,2) NOT NULL DEFAULT 0,
+  `remaining_debt` DECIMAL(14,2) NULL,
+  `end_date` DATE NULL,
+  `payment_day` TINYINT NULL,
+  `note` TEXT NOT NULL,
+  `is_active` TINYINT(1) NOT NULL DEFAULT 1,
+  `sort_order` INT NOT NULL DEFAULT 0,
+  `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  KEY idx_loans_user (`user_id`),
+  CONSTRAINT fk_loans_user FOREIGN KEY (`user_id`) REFERENCES users(`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

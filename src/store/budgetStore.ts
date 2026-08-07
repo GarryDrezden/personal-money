@@ -6,6 +6,7 @@ import type {
   BudgetMonth,
   Category,
   LedgerFilters,
+  Loan,
   QuickFormPrefs,
   Transaction,
   AppSettings,
@@ -101,6 +102,8 @@ interface BudgetState extends BudgetData {
   deleteAccount: (id: string) => Promise<void>;
   saveCategory: (category: Partial<Category> & { id?: string }) => Promise<void>;
   deleteCategory: (id: string) => Promise<void>;
+  saveLoan: (loan: Partial<Loan> & { id?: string }) => Promise<void>;
+  deleteLoan: (id: string) => Promise<void>;
   importFile: (file: File, force?: boolean) => Promise<void>;
   ensureMonth: (yearMonth: string) => Promise<BudgetMonth>;
   resolveMonthIdForTxDate: (txDate: string | null | undefined, fallbackMonthId: string) => Promise<string>;
@@ -121,6 +124,7 @@ export const useBudgetStore = create<BudgetState>((set, get) => ({
   categoryTotals: [],
   accounts: [],
   categories: [],
+  loans: [],
   settings: {
     currency: 'RUB',
     importCompletedAt: null,
@@ -163,6 +167,7 @@ export const useBudgetStore = create<BudgetState>((set, get) => ({
       localStorage.setItem('personal-budget-theme', theme);
       set({
         ...data,
+        loans: data.loans ?? [],
         months,
         ...withTxIndex(data.transactions, months),
         collapsed,
@@ -397,6 +402,23 @@ export const useBudgetStore = create<BudgetState>((set, get) => ({
       categories: get().categories.map((c) => (c.id === id ? { ...c, isActive: false } : c)),
     });
     get().showToast('Категория удалена');
+  },
+
+  saveLoan: async (loan) => {
+    const saved = await apiRepository.saveLoan(loan);
+    const loans = loan.id
+      ? get().loans.map((l) => (l.id === saved.id ? saved : l))
+      : [...get().loans, saved];
+    set({ loans });
+    get().showToast('Кредит сохранён');
+  },
+
+  deleteLoan: async (id) => {
+    await apiRepository.deleteLoan(id);
+    set({
+      loans: get().loans.map((l) => (l.id === id ? { ...l, isActive: false } : l)),
+    });
+    get().showToast('Кредит закрыт');
   },
 
   importFile: async (file, force = false) => {

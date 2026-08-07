@@ -410,6 +410,150 @@ if (preg_match('#^/categories/([^/]+)$#', $uri, $m) && $method === 'DELETE') {
 
 
 
+// GET /loans
+
+if ($uri === '/loans' && $method === 'GET') {
+
+    $stmt = $pdo->prepare('SELECT * FROM loans WHERE user_id = :uid ORDER BY sort_order, name');
+
+    $stmt->execute(['uid' => $userId]);
+
+    jsonResponse(array_map('rowToLoan', $stmt->fetchAll()));
+
+}
+
+
+
+// POST /loans
+
+if ($uri === '/loans' && $method === 'POST') {
+
+    $body = getJsonBody();
+
+    $loan = normalizeLoanInput($body);
+
+    if ($loan['name'] === '') {
+
+        jsonError('name required');
+
+    }
+
+    $id = $body['id'] ?? $db->uuid();
+
+    $pdo->prepare(
+
+        'INSERT INTO loans (`id`, `user_id`, `name`, `monthly_payment`, `remaining_debt`, `end_date`, `payment_day`, `note`, `is_active`, `sort_order`)
+
+         VALUES (:id, :uid, :name, :mp, :rd, :ed, :pd, :note, :ia, :so)',
+
+    )->execute([
+
+        'id' => $id,
+
+        'uid' => $userId,
+
+        'name' => $loan['name'],
+
+        'mp' => $loan['monthly_payment'],
+
+        'rd' => $loan['remaining_debt'],
+
+        'ed' => $loan['end_date'],
+
+        'pd' => $loan['payment_day'],
+
+        'note' => $loan['note'],
+
+        'ia' => $loan['is_active'],
+
+        'so' => $loan['sort_order'],
+
+    ]);
+
+    $stmt = $pdo->prepare('SELECT * FROM loans WHERE id = :id AND user_id = :uid');
+
+    $stmt->execute(['id' => $id, 'uid' => $userId]);
+
+    jsonResponse(rowToLoan($stmt->fetch()), 201);
+
+}
+
+
+
+// PUT /loans/{id}
+
+if (preg_match('#^/loans/([^/]+)$#', $uri, $m) && $method === 'PUT') {
+
+    if (!loanBelongsToUser($pdo, $m[1], $userId)) {
+
+        jsonError('Loan not found', 404);
+
+    }
+
+    $loan = normalizeLoanInput(getJsonBody());
+
+    $pdo->prepare(
+
+        'UPDATE loans SET name=:name, monthly_payment=:mp, remaining_debt=:rd, end_date=:ed,
+
+         payment_day=:pd, note=:note, is_active=:ia, sort_order=:so, updated_at=CURRENT_TIMESTAMP
+
+         WHERE id=:id AND user_id=:uid',
+
+    )->execute([
+
+        'id' => $m[1],
+
+        'uid' => $userId,
+
+        'name' => $loan['name'],
+
+        'mp' => $loan['monthly_payment'],
+
+        'rd' => $loan['remaining_debt'],
+
+        'ed' => $loan['end_date'],
+
+        'pd' => $loan['payment_day'],
+
+        'note' => $loan['note'],
+
+        'ia' => $loan['is_active'],
+
+        'so' => $loan['sort_order'],
+
+    ]);
+
+    $stmt = $pdo->prepare('SELECT * FROM loans WHERE id = :id AND user_id = :uid');
+
+    $stmt->execute(['id' => $m[1], 'uid' => $userId]);
+
+    jsonResponse(rowToLoan($stmt->fetch()));
+
+}
+
+
+
+// DELETE /loans/{id}
+
+if (preg_match('#^/loans/([^/]+)$#', $uri, $m) && $method === 'DELETE') {
+
+    if (!loanBelongsToUser($pdo, $m[1], $userId)) {
+
+        jsonError('Loan not found', 404);
+
+    }
+
+    $pdo->prepare('UPDATE loans SET is_active = 0, updated_at = CURRENT_TIMESTAMP WHERE id = :id AND user_id = :uid')
+
+        ->execute(['id' => $m[1], 'uid' => $userId]);
+
+    jsonResponse(['ok' => true]);
+
+}
+
+
+
 // GET /months
 
 if ($uri === '/months' && $method === 'GET') {

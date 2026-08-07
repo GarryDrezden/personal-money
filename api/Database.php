@@ -148,6 +148,8 @@ class Database
 
             }
 
+            $this->ensureLoansTable();
+
             return;
 
         }
@@ -165,6 +167,68 @@ class Database
         $this->migrateTheme();
 
         $this->migrateMultiUser();
+
+        $this->ensureLoansTable();
+
+    }
+
+
+
+    private function ensureLoansTable(): void
+
+    {
+
+        if ($this->tableExists('loans')) {
+
+            return;
+
+        }
+
+        if ($this->isMysql()) {
+
+            $this->pdo->exec(
+
+                'CREATE TABLE IF NOT EXISTS loans (
+                  `id` CHAR(36) NOT NULL PRIMARY KEY,
+                  `user_id` CHAR(36) NOT NULL,
+                  `name` VARCHAR(255) NOT NULL,
+                  `monthly_payment` DECIMAL(14,2) NOT NULL DEFAULT 0,
+                  `remaining_debt` DECIMAL(14,2) NULL,
+                  `end_date` DATE NULL,
+                  `payment_day` TINYINT NULL,
+                  `note` TEXT NOT NULL,
+                  `is_active` TINYINT(1) NOT NULL DEFAULT 1,
+                  `sort_order` INT NOT NULL DEFAULT 0,
+                  `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                  `updated_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+                  KEY idx_loans_user (`user_id`),
+                  CONSTRAINT fk_loans_user FOREIGN KEY (`user_id`) REFERENCES users(`id`) ON DELETE CASCADE
+                ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci',
+
+            );
+
+            return;
+
+        }
+
+        $this->pdo->exec(
+
+            'CREATE TABLE IF NOT EXISTS loans (
+              id TEXT PRIMARY KEY,
+              user_id TEXT NOT NULL,
+              name TEXT NOT NULL,
+              monthly_payment REAL NOT NULL DEFAULT 0,
+              remaining_debt REAL,
+              end_date TEXT,
+              payment_day INTEGER,
+              note TEXT NOT NULL DEFAULT \'\',
+              is_active INTEGER NOT NULL DEFAULT 1,
+              sort_order INTEGER NOT NULL DEFAULT 0,
+              created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+              updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+            )',
+
+        );
 
     }
 
@@ -763,6 +827,44 @@ function rowToAccount(array $row): array
         'status' => $status,
 
         'isActive' => $status === 'active',
+
+        'sortOrder' => (int) ($row['sort_order'] ?? 0),
+
+    ];
+
+}
+
+
+
+function rowToLoan(array $row): array
+
+{
+
+    return [
+
+        'id' => $row['id'],
+
+        'name' => $row['name'],
+
+        'monthlyPayment' => (float) ($row['monthly_payment'] ?? 0),
+
+        'remainingDebt' => isset($row['remaining_debt']) && $row['remaining_debt'] !== null
+
+            ? (float) $row['remaining_debt']
+
+            : null,
+
+        'endDate' => $row['end_date'] ?? null,
+
+        'paymentDay' => isset($row['payment_day']) && $row['payment_day'] !== null
+
+            ? (int) $row['payment_day']
+
+            : null,
+
+        'note' => $row['note'] ?? '',
+
+        'isActive' => (bool) ($row['is_active'] ?? 1),
 
         'sortOrder' => (int) ($row['sort_order'] ?? 0),
 

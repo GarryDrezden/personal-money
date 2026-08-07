@@ -1,0 +1,13 @@
+---
+description: PHP API and data-model conventions for Personal Budget
+globs: api/**/*
+alwaysApply: false
+---
+
+# Personal Budget — API
+
+- Router and endpoints: `api/index.php`; auth: `api/auth.php`
+- Schema: `api/schema-mysql.sql` (prod MySQL)
+- Docs: `docs/03-data-model-and-api.md`
+- Do not commit real secrets from `api/config.php`; use `config.example.php` as reference.
+- Calculation/business impact: also read `docs/05-business-rules.md`.

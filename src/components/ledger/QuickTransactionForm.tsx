@@ -83,8 +83,11 @@ export function QuickTransactionForm({ monthId, compact = false }: QuickTransact
   const quickForm = useBudgetStore((s) => s.quickForm);
   const accounts = useBudgetStore((s) => s.accounts);
   const categories = useBudgetStore((s) => s.categories);
+  const transactions = useBudgetStore((s) => s.transactions);
+  const loans = useBudgetStore((s) => s.loans);
   const setQuickForm = useBudgetStore((s) => s.setQuickForm);
   const createQuickTransaction = useBudgetStore((s) => s.createQuickTransaction);
+  const saveLoan = useBudgetStore((s) => s.saveLoan);
   const showToast = useBudgetStore((s) => s.showToast);
 
   const [name, setName] = useState('');
@@ -93,6 +96,7 @@ export function QuickTransactionForm({ monthId, compact = false }: QuickTransact
   const [busy, setBusy] = useState(false);
   const [advancedOpen, setAdvancedOpen] = useState(false);
   const [noteOpen, setNoteOpen] = useState(false);
+  const [selectedLoanId, setSelectedLoanId] = useState('');
   const categoryTouched = useRef(false);
   const amountRef = useRef<HTMLInputElement>(null);
   const nameRef = useRef<HTMLInputElement>(null);
@@ -102,10 +106,14 @@ export function QuickTransactionForm({ monthId, compact = false }: QuickTransact
     () => accounts.find((a) => a.type === 'credit' && a.isActive && a.status !== 'closed'),
     [accounts],
   );
+  const activeLoans = useMemo(
+    () => loans.filter((l) => l.isActive).sort((a, b) => a.sortOrder - b.sortOrder),
+    [loans],
+  );
 
   const suggestedCategoryId = useMemo(
-    () => (name.trim() ? suggestCategory(name) : null),
-    [name],
+    () => (name.trim() ? suggestCategory(name, transactions) : null),
+    [name, transactions],
   );
 
   useEffect(() => {
@@ -200,14 +208,19 @@ export function QuickTransactionForm({ monthId, compact = false }: QuickTransact
           expenseAmount: num,
         });
       } else if (opType === 'debt_payment') {
+        const loan = activeLoans.find((l) => l.id === selectedLoanId);
         await createQuickTransaction(monthId, {
           ...base,
           operationKind: 'debt_payment',
           accountId: quickForm.accountId,
           categoryId: 'credits',
-          expenseName: name || 'Платёж по кредиту',
+          expenseName: name || loan?.name || 'Платёж по кредиту',
           expenseAmount: num,
         });
+        if (loan && loan.remainingDebt != null && loan.remainingDebt > 0) {
+          const nextDebt = Math.max(0, Math.round((loan.remainingDebt - num) * 100) / 100);
+          await saveLoan({ ...loan, remainingDebt: nextDebt });
+        }
       } else if (opType === 'correction') {
         await createQuickTransaction(monthId, {
           ...base,
@@ -221,7 +234,9 @@ export function QuickTransactionForm({ monthId, compact = false }: QuickTransact
       }
 
       setAmount('');
-      amountRef.current?.focus();
+      setName('');
+      categoryTouched.current = false;
+      nameRef.current?.focus();
     } catch (e) {
       showToast(e instanceof Error ? e.message : 'Ошибка', 'error');
     } finally {
@@ -336,6 +351,32 @@ export function QuickTransactionForm({ monthId, compact = false }: QuickTransact
         <span className="quick-entry-label">Счёт</span>
         <AccountSelect value={quickForm.accountId} onChange={(id) => setQuickForm({ accountId: id })} />
       </label>
+      {opType === 'debt_payment' && activeLoans.length > 0 && (
+        <label className="quick-entry-field">
+          <span className="quick-entry-label">Кредит</span>
+          <select
+            className="money-input"
+            value={selectedLoanId}
+            onChange={(e) => {
+              const id = e.target.value;
+              setSelectedLoanId(id);
+              const loan = activeLoans.find((l) => l.id === id);
+              if (loan) {
+                setName(loan.name);
+                setAmount(String(loan.monthlyPayment));
+                setQuickForm({ categoryId: 'credits' });
+              }
+            }}
+          >
+            <option value="">Выберите кредит…</option>
+            {activeLoans.map((l) => (
+              <option key={l.id} value={l.id}>
+                {l.name} · {l.monthlyPayment.toLocaleString('ru-RU')} ₽/мес
+              </option>
+            ))}
+          </select>
+        </label>
+      )}
       {showTarget && (
         <label className="quick-entry-field">
           <span className="quick-entry-label">

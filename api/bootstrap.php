@@ -220,6 +220,38 @@ function normalizeCategoryInput(array $body): array
     ];
 }
 
+function normalizeLoanInput(array $body): array
+{
+    $day = isset($body['paymentDay']) && $body['paymentDay'] !== '' && $body['paymentDay'] !== null
+        ? (int) $body['paymentDay']
+        : null;
+    if ($day !== null && ($day < 1 || $day > 31)) {
+        $day = null;
+    }
+
+    return [
+        'name' => (string) ($body['name'] ?? ''),
+        'monthly_payment' => (float) ($body['monthlyPayment'] ?? 0),
+        'remaining_debt' => isset($body['remainingDebt']) && $body['remainingDebt'] !== '' && $body['remainingDebt'] !== null
+            ? (float) $body['remainingDebt']
+            : null,
+        'end_date' => isset($body['endDate']) && $body['endDate'] !== ''
+            ? (string) $body['endDate']
+            : null,
+        'payment_day' => $day,
+        'note' => (string) ($body['note'] ?? ''),
+        'is_active' => array_key_exists('isActive', $body) ? ($body['isActive'] ? 1 : 0) : 1,
+        'sort_order' => (int) ($body['sortOrder'] ?? 0),
+    ];
+}
+
+function loanBelongsToUser(PDO $pdo, string $loanId, string $userId): bool
+{
+    $stmt = $pdo->prepare('SELECT id FROM loans WHERE id = :id AND user_id = :uid');
+    $stmt->execute(['id' => $loanId, 'uid' => $userId]);
+    return (bool) $stmt->fetch();
+}
+
 function loadAllPayload(PDO $pdo, string $userId): array
 {
     $settingsStmt = $pdo->prepare('SELECT * FROM app_settings WHERE user_id = :uid');
@@ -250,12 +282,22 @@ function loadAllPayload(PDO $pdo, string $userId): array
     $categoriesStmt = $pdo->prepare('SELECT * FROM categories WHERE user_id = :uid ORDER BY sort_order, name');
     $categoriesStmt->execute(['uid' => $userId]);
 
+    $loans = [];
+    try {
+        $loansStmt = $pdo->prepare('SELECT * FROM loans WHERE user_id = :uid ORDER BY sort_order, name');
+        $loansStmt->execute(['uid' => $userId]);
+        $loans = array_map('rowToLoan', $loansStmt->fetchAll());
+    } catch (Throwable $e) {
+        $loans = [];
+    }
+
     return [
         'months' => array_map('rowToMonth', $months),
         'transactions' => array_map('rowToTransaction', $txStmt->fetchAll()),
         'categoryTotals' => array_map('rowToCategoryTotal', $catTotalsStmt->fetchAll()),
         'accounts' => array_map('rowToAccount', $accStmt->fetchAll()),
         'categories' => array_map('rowToCategory', $categoriesStmt->fetchAll()),
+        'loans' => $loans,
         'settings' => rowToSettings($settingsRow ?: []),
     ];
 }

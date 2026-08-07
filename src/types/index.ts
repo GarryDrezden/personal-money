@@ -26,6 +26,19 @@ export interface Account {
   sortOrder: number;
 }
 
+/** Ежемесячный кредит / рассрочка (не кредитная карта). */
+export interface Loan {
+  id: string;
+  name: string;
+  monthlyPayment: number;
+  remainingDebt: number | null;
+  endDate: string | null;
+  paymentDay: number | null;
+  note: string;
+  isActive: boolean;
+  sortOrder: number;
+}
+
 export interface Category {
   id: string;
   name: string;
@@ -83,6 +96,7 @@ export interface BudgetData {
   categoryTotals: MonthCategoryTotal[];
   accounts: Account[];
   categories: Category[];
+  loans: Loan[];
   settings: AppSettings;
 }
 

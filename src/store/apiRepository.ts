@@ -4,6 +4,7 @@ import type {
   BudgetData,
   BudgetMonth,
   Category,
+  Loan,
   MonthCategoryTotal,
   QuickFormPrefs,
   Transaction,
@@ -115,6 +116,20 @@ export const apiRepository = {
 
   deleteCategory: (id: string) =>
     request<{ ok: boolean }>(`${API}/categories/${id}`, { method: 'DELETE' }),
+
+  saveLoan: (loan: Partial<Loan> & { id?: string }) =>
+    loan.id
+      ? request<Loan>(`${API}/loans/${loan.id}`, {
+          method: 'PUT',
+          body: JSON.stringify(loan),
+        })
+      : request<Loan>(`${API}/loans`, {
+          method: 'POST',
+          body: JSON.stringify(loan),
+        }),
+
+  deleteLoan: (id: string) =>
+    request<{ ok: boolean }>(`${API}/loans/${id}`, { method: 'DELETE' }),
 
   saveSettings: (settings: Partial<AppSettings>) =>
     request<AppSettings>(`${API}/settings`, {

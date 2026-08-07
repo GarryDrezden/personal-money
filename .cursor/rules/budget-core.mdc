@@ -1,0 +1,11 @@
+---
+description: Core conventions for Personal Budget (stack, docs index)
+alwaysApply: true
+---
+
+# Personal Budget — core
+
+- SPA in `src/`, REST in `api/`. Do not invent a second backend.
+- Read docs on demand from `AGENTS.md` — never load entire `docs/` for routine coding.
+- Business/calculation changes: read `docs/05-business-rules.md` and follow skill `budget-calc-change`.
+- Shared hosting: personal skill `shared-hosting-php-react`.

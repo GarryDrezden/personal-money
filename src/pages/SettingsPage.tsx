@@ -9,6 +9,7 @@ import { PageHeader } from '../components/ui/PageHeader';
 import {
   AccountsEditor,
   CategoriesEditor,
+  LoansEditor,
   MaintenanceTools,
 } from '../components/settings/SettingsEditors';
 
@@ -118,6 +119,7 @@ export function SettingsPage() {
       {tab === 'budget' && (
         <>
           <AccountsEditor />
+          <LoansEditor />
           <CategoriesEditor />
         </>
       )}

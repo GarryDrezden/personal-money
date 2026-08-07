@@ -1,0 +1,12 @@
+---
+description: Frontend conventions for Personal Budget React SPA
+globs: src/**/*.{tsx,ts,css}
+alwaysApply: false
+---
+
+# Personal Budget — frontend
+
+- Structure overview: `docs/04-frontend-structure.md`
+- Theming / UX: `docs/07-design-ux-theming.md`
+- Prefer existing Zustand stores and page patterns under `src/pages` and `src/store`.
+- UI language: Russian; currency: RUB.

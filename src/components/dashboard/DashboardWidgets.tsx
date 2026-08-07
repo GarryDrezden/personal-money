@@ -8,6 +8,7 @@ import {
 } from '../../store/budgetStore';
 import {
   creditDebtAmount,
+  currentYearMonth,
   formatMoney,
   getAllAccountsSummary,
   getPreviousMonthSummary,
@@ -18,6 +19,12 @@ import {
   percentChange,
 } from '../../utils/budget';
 import { getActiveCreditAccounts } from '../../utils/accounts';
+import {
+  getActiveLoans,
+  isLoanPaidThisMonth,
+  loanPaidInMonth,
+  totalMonthlyLoanPayments,
+} from '../../utils/loans';
 import { useMonthCategorySummaries } from '../../store/selectors';
 import { Card } from '../ui/Card';
 import { EmptyState } from '../ui/EmptyState';
@@ -111,6 +118,63 @@ export function AccountCards() {
         />
       )}
     </>
+  );
+}
+
+export function LoansPanel() {
+  const loans = useBudgetStore((s) => s.loans);
+  const transactions = useBudgetStore((s) => s.transactions);
+  const active = useMemo(() => getActiveLoans(loans), [loans]);
+  const ym = currentYearMonth();
+
+  if (!active.length) return null;
+
+  const total = totalMonthlyLoanPayments(loans);
+
+  return (
+    <Card>
+      <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
+        <div>
+          <h2 className="font-semibold">Кредиты</h2>
+          <p className="text-sm text-[var(--app-text-muted)]">
+            Ежемесячно {formatMoney(total)}
+          </p>
+        </div>
+        <Link to="/settings" className="text-sm text-[var(--app-primary)]">
+          Настройки →
+        </Link>
+      </div>
+      <ul className="space-y-2">
+        {active.map((loan) => {
+          const paid = loanPaidInMonth(loan, transactions, ym);
+          const done = isLoanPaidThisMonth(loan, transactions, ym);
+          return (
+            <li
+              key={loan.id}
+              className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-[var(--app-border)] bg-[var(--app-bg-soft)] px-3 py-2.5"
+            >
+              <div className="min-w-0">
+                <p className="truncate font-medium">{loan.name}</p>
+                <p className="text-xs text-[var(--app-text-muted)]">
+                  {formatMoney(loan.monthlyPayment)}/мес
+                  {loan.endDate && ` · до ${loan.endDate.slice(0, 7)}`}
+                  {loan.remainingDebt != null && ` · долг ${formatMoney(loan.remainingDebt)}`}
+                </p>
+              </div>
+              <div className="text-right text-sm">
+                {done ? (
+                  <span className="font-medium text-[var(--app-success)]">оплачено</span>
+                ) : (
+                  <span className="tabular-nums text-[var(--app-text-muted)]">
+                    {paid > 0 ? `${formatMoney(paid)} из ${formatMoney(loan.monthlyPayment)}` : 'не оплачен'}
+                  </span>
+                )}
+              </div>
+            </li>
+          );
+        })}
+      </ul>
+    </Card>
   );
 }
 

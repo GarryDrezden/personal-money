@@ -4,6 +4,7 @@ import { EmptyState } from '../components/ui/EmptyState';
 import {
   AccountCards,
   AttentionBlock,
+  LoansPanel,
   MonthCategoriesWidget,
   QuickEntryWidget,
   RecentTransactions,
@@ -42,6 +43,7 @@ export function DashboardPage() {
 
       <FinancialPulse />
       <AccountCards />
+      <LoansPanel />
       <div className="ledger-top-grid">
         <QuickEntryWidget />
         <MonthCategoriesWidget />

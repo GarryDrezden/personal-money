@@ -36,7 +36,25 @@
 
 ---
 
-## Как использовать для анализа GPT
+## Для Cursor (ежедневная разработка)
+
+Не подключай весь `docs/` в чат. Используй [AGENTS.md](../AGENTS.md) и читай **один** файл под задачу:
+
+| Задача | Файл |
+|--------|------|
+| Архитектура / структура | [02-tech-architecture.md](./02-tech-architecture.md) |
+| API / схема | [03-data-model-and-api.md](./03-data-model-and-api.md) |
+| Frontend | [04-frontend-structure.md](./04-frontend-structure.md) |
+| Расчёты / бизнес-правила | [05-business-rules.md](./05-business-rules.md) |
+| UX / темы | [07-design-ux-theming.md](./07-design-ux-theming.md) |
+| Deploy | [08-deployment-operations.md](./08-deployment-operations.md) |
+| Тесты расчётов | [11-testing-plan.md](./11-testing-plan.md) |
+
+Правила: `.cursor/rules/`. Смена формул: skill `budget-calc-change`.
+
+---
+
+## Для полного аудита GPT
 
 Скопируйте в чат **весь каталог `docs/`** (или приложите репозиторий) и используйте промпт из [10-review-checklist.md](./10-review-checklist.md).
 
