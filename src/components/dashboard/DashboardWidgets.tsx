@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Inbox } from 'lucide-react';
 import {
   useBudgetStore,
@@ -123,13 +123,72 @@ export function AccountCards() {
 
 export function LoansPanel() {
   const loans = useBudgetStore((s) => s.loans);
+  const accounts = useBudgetStore((s) => s.accounts);
   const transactions = useBudgetStore((s) => s.transactions);
+  const current = useCurrentMonthSummary();
+  const createQuickTransaction = useBudgetStore((s) => s.createQuickTransaction);
+  const saveLoan = useBudgetStore((s) => s.saveLoan);
+  const showToast = useBudgetStore((s) => s.showToast);
+  const quickForm = useBudgetStore((s) => s.quickForm);
+
   const active = useMemo(() => getActiveLoans(loans), [loans]);
+  const debitAccounts = useMemo(
+    () =>
+      accounts
+        .filter((a) => a.type === 'debit' && a.isActive && a.status !== 'closed')
+        .sort((a, b) => a.sortOrder - b.sortOrder),
+    [accounts],
+  );
+  const [payFromId, setPayFromId] = useState(
+    () => quickForm.accountId || debitAccounts[0]?.id || '',
+  );
+  const [payingId, setPayingId] = useState<string | null>(null);
   const ym = currentYearMonth();
 
-  if (!active.length) return null;
+  useEffect(() => {
+    if (!payFromId && debitAccounts[0]) setPayFromId(debitAccounts[0].id);
+  }, [payFromId, debitAccounts]);
+
+  if (!active.length || !current) return null;
 
   const total = totalMonthlyLoanPayments(loans);
+
+  const markPaid = async (loan: (typeof active)[number]) => {
+    const accountId = payFromId || debitAccounts[0]?.id;
+    if (!accountId) {
+      showToast('Нет дебетовой карты для списания', 'error');
+      return;
+    }
+    const already = loanPaidInMonth(loan, transactions, ym);
+    const remaining = Math.max(0, Math.round((loan.monthlyPayment - already) * 100) / 100);
+    if (remaining <= 0) {
+      showToast('Платёж уже отмечен в этом месяце');
+      return;
+    }
+
+    setPayingId(loan.id);
+    try {
+      await createQuickTransaction(current.monthId, {
+        operationKind: 'debt_payment',
+        accountId,
+        categoryId: 'credits',
+        expenseName: loan.name,
+        expenseAmount: remaining,
+        txDate: new Date().toISOString().slice(0, 10),
+        paymentStatus: 'done',
+        note: `Ежемесячный платёж · ${ym}`,
+      });
+      if (loan.remainingDebt != null && loan.remainingDebt > 0) {
+        const nextDebt = Math.max(0, Math.round((loan.remainingDebt - remaining) * 100) / 100);
+        await saveLoan({ ...loan, remainingDebt: nextDebt });
+      }
+      showToast(`«${loan.name}»: платёж ${formatMoney(remaining)} отмечен`);
+    } catch (e) {
+      showToast(e instanceof Error ? e.message : 'Ошибка', 'error');
+    } finally {
+      setPayingId(null);
+    }
+  };
 
   return (
     <Card>
@@ -137,17 +196,36 @@ export function LoansPanel() {
         <div>
           <h2 className="font-semibold">Кредиты</h2>
           <p className="text-sm text-[var(--app-text-muted)]">
-            Ежемесячно {formatMoney(total)}
+            Ежемесячно {formatMoney(total)} · отметьте оплату с карты
           </p>
         </div>
         <Link to="/settings" className="text-sm text-[var(--app-primary)]">
           Настройки →
         </Link>
       </div>
+
+      {debitAccounts.length > 0 && (
+        <label className="mb-3 flex flex-wrap items-center gap-2 text-sm">
+          <span className="text-[var(--app-text-muted)]">Списать с</span>
+          <select
+            className="money-input max-w-[14rem]"
+            value={payFromId}
+            onChange={(e) => setPayFromId(e.target.value)}
+          >
+            {debitAccounts.map((a) => (
+              <option key={a.id} value={a.id}>
+                {a.name}
+              </option>
+            ))}
+          </select>
+        </label>
+      )}
+
       <ul className="space-y-2">
         {active.map((loan) => {
           const paid = loanPaidInMonth(loan, transactions, ym);
           const done = isLoanPaidThisMonth(loan, transactions, ym);
+          const left = Math.max(0, loan.monthlyPayment - paid);
           return (
             <li
               key={loan.id}
@@ -161,13 +239,27 @@ export function LoansPanel() {
                   {loan.remainingDebt != null && ` · долг ${formatMoney(loan.remainingDebt)}`}
                 </p>
               </div>
-              <div className="text-right text-sm">
+              <div className="flex flex-wrap items-center gap-2">
                 {done ? (
-                  <span className="font-medium text-[var(--app-success)]">оплачено</span>
-                ) : (
-                  <span className="tabular-nums text-[var(--app-text-muted)]">
-                    {paid > 0 ? `${formatMoney(paid)} из ${formatMoney(loan.monthlyPayment)}` : 'не оплачен'}
+                  <span className="rounded-lg bg-[var(--app-success)]/15 px-2.5 py-1 text-sm font-medium text-[var(--app-success)]">
+                    оплачено
                   </span>
+                ) : (
+                  <>
+                    {paid > 0 && (
+                      <span className="text-xs tabular-nums text-[var(--app-text-muted)]">
+                        ещё {formatMoney(left)}
+                      </span>
+                    )}
+                    <button
+                      type="button"
+                      disabled={payingId === loan.id || !payFromId}
+                      className="btn-primary rounded-lg px-3 py-1.5 text-sm disabled:opacity-50"
+                      onClick={() => void markPaid(loan)}
+                    >
+                      {payingId === loan.id ? '…' : `Отметить ${formatMoney(left)}`}
+                    </button>
+                  </>
                 )}
               </div>
             </li>
