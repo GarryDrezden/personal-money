@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react';
+import { Download } from 'lucide-react';
 import {
   Bar,
   BarChart,
@@ -29,6 +30,7 @@ import {
   topExpenseNames,
   topIncomeSources,
 } from '../utils/budget';
+import { downloadYearExpensesCsv, yearExpenseDateRange } from '../utils/exportExpenses';
 import { formatYearMonth } from '../constants/categories';
 import { getPrimaryCreditAccount } from '../utils/accounts';
 import { AnalyticsInsightsPanel } from '../components/analytics/AnalyticsInsightsPanel';
@@ -145,6 +147,24 @@ export function AnalyticsPage() {
 
   const activeAccounts = accounts.filter((a) => a.isActive && a.type !== 'credit');
 
+  const exportRange = yearExpenseDateRange(year);
+  const isCurrentYear = year === String(new Date().getFullYear());
+
+  const handleExportExpenses = () => {
+    const result = downloadYearExpensesCsv({
+      year,
+      transactions,
+      months,
+      accounts,
+      categories,
+      accountId: accountFilter || undefined,
+      categoryId: categoryFilter || undefined,
+    });
+    if (result.count === 0) {
+      window.alert(`Нет расходов за ${year} (${result.from} — ${result.to})`);
+    }
+  };
+
   if (!months.length) {
     return (
       <Card>
@@ -157,7 +177,7 @@ export function AnalyticsPage() {
   return (
     <div className="space-y-6">
       <PageHeader title="Аналитика" subtitle="Выводы, сравнения и графики по годам">
-        <div className="flex flex-wrap gap-2">
+        <div className="flex flex-wrap items-end gap-2">
           <label className="flex flex-col gap-1 text-sm">
             Год
             <select className="money-input min-w-[100px]" value={year} onChange={(e) => setYear(e.target.value)}>
@@ -174,7 +194,24 @@ export function AnalyticsPage() {
             Категория
             <CategorySelect value={categoryFilter} onChange={setCategoryFilter} type="all" />
           </label>
+          <button
+            type="button"
+            onClick={handleExportExpenses}
+            className="btn-primary inline-flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm"
+            title={
+              isCurrentYear
+                ? `Траты с ${exportRange.from} по ${exportRange.to}`
+                : `Траты за весь ${year} год`
+            }
+          >
+            <Download size={16} />
+            Выгрузить траты {year}
+          </button>
         </div>
+        <p className="mt-2 text-xs text-[var(--app-text-muted)]">
+          CSV: {isCurrentYear ? `январь — сегодня (${exportRange.to})` : `январь — декабрь ${year}`}
+          {(accountFilter || categoryFilter) && ' · с учётом фильтров'}
+        </p>
       </PageHeader>
 
       <AnalyticsInsightsPanel />
