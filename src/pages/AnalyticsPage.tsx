@@ -34,6 +34,7 @@ import { downloadYearExpensesCsv, yearExpenseDateRange } from '../utils/exportEx
 import { formatYearMonth } from '../constants/categories';
 import { getPrimaryCreditAccount } from '../utils/accounts';
 import { AnalyticsInsightsPanel } from '../components/analytics/AnalyticsInsightsPanel';
+import { MonthlyCategoryExpenses } from '../components/analytics/MonthlyCategoryExpenses';
 import { Card } from '../components/ui/Card';
 import { PageHeader } from '../components/ui/PageHeader';
 import { AccountSelect } from '../components/shared/AccountSelect';
@@ -279,38 +280,7 @@ export function AnalyticsPage() {
 
       <Card>
         <h2 className="mb-3 font-semibold">Траты по категориям ({year})</h2>
-        <div className="space-y-4">
-          {monthlyCategoryExpenses.map((month) => (
-            <div
-              key={month.monthId}
-              className="rounded-lg border border-[var(--app-border)] p-3"
-            >
-              <div className="mb-2 flex flex-wrap items-baseline justify-between gap-2">
-                <h3 className="font-semibold">{formatYearMonth(month.yearMonth)}</h3>
-                <span className="text-sm text-[var(--app-text-muted)]">
-                  итого <strong className="text-[var(--app-text)]">{formatMoney(month.total)}</strong>
-                </span>
-              </div>
-              {month.items.length ? (
-                <ul className="space-y-1 text-sm">
-                  {month.items.map((item) => (
-                    <li key={item.categoryId} className="flex justify-between gap-2">
-                      <span>{item.name}</span>
-                      <span className="shrink-0 font-medium text-[var(--app-danger)]">
-                        {formatMoney(item.amount)}
-                      </span>
-                    </li>
-                  ))}
-                </ul>
-              ) : (
-                <p className="text-sm text-[var(--app-text-muted)]">Нет расходов</p>
-              )}
-            </div>
-          ))}
-          {!monthlyCategoryExpenses.length && (
-            <p className="text-sm text-[var(--app-text-muted)]">Нет данных за год</p>
-          )}
-        </div>
+        <MonthlyCategoryExpenses year={year} months={monthlyCategoryExpenses} />
       </Card>
 
       <div className="grid gap-4 lg:grid-cols-2">

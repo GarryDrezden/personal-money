@@ -587,11 +587,51 @@ export function aggregateCategoryTotals(
     .sort((a, b) => b.amount - a.amount);
 }
 
+export const UNNAMED_EXPENSE = 'Без названия';
+
+export interface CategoryExpenseEntry {
+  name: string;
+  amount: number;
+  count: number;
+}
+
+export interface MonthCategoryExpenseItem {
+  categoryId: string;
+  name: string;
+  amount: number;
+  entries: CategoryExpenseEntry[];
+}
+
 export interface MonthCategoryExpenseRow {
   monthId: string;
   yearMonth: string;
   total: number;
-  items: { categoryId: string; name: string; amount: number }[];
+  items: MonthCategoryExpenseItem[];
+}
+
+function expenseDisplayName(tx: Transaction): string {
+  const name = tx.expenseName?.trim();
+  return name || UNNAMED_EXPENSE;
+}
+
+/** Складывает траты с одинаковым названием (без учёта регистра и пробелов по краям). */
+export function groupExpensesByName(transactions: Transaction[]): CategoryExpenseEntry[] {
+  const map = new Map<string, CategoryExpenseEntry>();
+  for (const tx of transactions) {
+    const display = expenseDisplayName(tx);
+    const key = display.toLowerCase();
+    const amount = toAmount(tx.expenseAmount);
+    const prev = map.get(key);
+    if (prev) {
+      prev.amount += amount;
+      prev.count += 1;
+    } else {
+      map.set(key, { name: display, amount, count: 1 });
+    }
+  }
+  return [...map.values()].sort(
+    (a, b) => b.amount - a.amount || a.name.localeCompare(b.name, 'ru'),
+  );
 }
 
 /** Траты по категориям для каждого месяца года (по дате операции). */
@@ -608,18 +648,24 @@ export function monthlyExpenseByCategory(
 
   return yearMonths.map((month) => {
     const monthTx = getMonthTransactions(transactions, month.id, months).filter(isCountedAsExpense);
-    const amounts = new Map<string, number>();
+    const byCat = new Map<string, Transaction[]>();
     for (const tx of monthTx) {
       const catId = tx.categoryId ?? (tx.category ? EXCEL_CAT_MAP[tx.category] : null);
       if (!catId) continue;
-      amounts.set(catId, (amounts.get(catId) ?? 0) + toAmount(tx.expenseAmount));
+      const list = byCat.get(catId);
+      if (list) list.push(tx);
+      else byCat.set(catId, [tx]);
     }
-    const items = [...amounts.entries()]
-      .map(([categoryId, amount]) => ({
-        categoryId,
-        name: catNames.get(categoryId) ?? categoryId,
-        amount,
-      }))
+    const items = [...byCat.entries()]
+      .map(([categoryId, txs]) => {
+        const entries = groupExpensesByName(txs);
+        return {
+          categoryId,
+          name: catNames.get(categoryId) ?? categoryId,
+          amount: entries.reduce((sum, entry) => sum + entry.amount, 0),
+          entries,
+        };
+      })
       .sort((a, b) => b.amount - a.amount);
     return {
       monthId: month.id,

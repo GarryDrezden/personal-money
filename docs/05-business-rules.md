@@ -137,6 +137,16 @@ remaining = monthlyLimit - amount
 
 Severity: info | warning | danger | success
 
+### Траты по категориям (разворот)
+
+`monthlyExpenseByCategory()` + `groupExpensesByName()`:
+
+- Категория месяца = сумма `isCountedAsExpense`
+- Разворот категории показывает пункты по `expenseName`, **от большей суммы к меньшей**
+- Одинаковые названия (trim, без учёта регистра) **складываются** в одну строку; `count` — число исходных операций
+- Пустое имя → «Без названия»
+- Переводы и ignored не входят
+
 ---
 
 ## Фильтрация журнала

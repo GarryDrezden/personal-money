@@ -1,6 +1,35 @@
 import { describe, expect, it } from 'vitest';
-import { buildMonthSummaries, getMonthTransactions } from './budget';
+import type { Category } from '../types';
+import {
+  buildMonthSummaries,
+  getMonthTransactions,
+  groupExpensesByName,
+  monthlyExpenseByCategory,
+  UNNAMED_EXPENSE,
+} from './budget';
 import { MAIN_ACCOUNT, month, tx } from '../test/fixtures';
+
+const FOOD: Category = {
+  id: 'food',
+  name: 'Еда',
+  type: 'expense',
+  color: null,
+  icon: null,
+  monthlyLimit: null,
+  isActive: true,
+  sortOrder: 1,
+};
+
+const HOME: Category = {
+  id: 'home',
+  name: 'Дом',
+  type: 'expense',
+  color: null,
+  icon: null,
+  monthlyLimit: null,
+  isActive: true,
+  sortOrder: 2,
+};
 
 describe('buildMonthSummaries', () => {
   it('computes income, expenses and delta for a single month', () => {
@@ -99,5 +128,56 @@ describe('buildMonthSummaries', () => {
     ];
     const [summary] = buildMonthSummaries([m], transactions, 0, [MAIN_ACCOUNT]);
     expect(summary.balanceMismatch).toBe(true);
+  });
+});
+
+describe('groupExpensesByName', () => {
+  it('merges identical names and sorts by amount descending', () => {
+    const transactions = [
+      tx({ id: '1', monthId: 'm1', expenseName: 'Пятёрочка', expenseAmount: 800, categoryId: 'food' }),
+      tx({ id: '2', monthId: 'm1', expenseName: 'Перекрёсток', expenseAmount: 2500, categoryId: 'food' }),
+      tx({ id: '3', monthId: 'm1', expenseName: 'пятёрочка', expenseAmount: 400, categoryId: 'food' }),
+    ];
+    expect(groupExpensesByName(transactions)).toEqual([
+      { name: 'Перекрёсток', amount: 2500, count: 1 },
+      { name: 'Пятёрочка', amount: 1200, count: 2 },
+    ]);
+  });
+
+  it('groups blank names as unnamed', () => {
+    const transactions = [
+      tx({ id: '1', monthId: 'm1', expenseName: '  ', expenseAmount: 100, categoryId: 'food' }),
+      tx({ id: '2', monthId: 'm1', expenseName: null, expenseAmount: 50, categoryId: 'food' }),
+    ];
+    expect(groupExpensesByName(transactions)).toEqual([
+      { name: UNNAMED_EXPENSE, amount: 150, count: 2 },
+    ]);
+  });
+});
+
+describe('monthlyExpenseByCategory', () => {
+  it('nests grouped expenses under each category, largest first', () => {
+    const months = [month({ id: 'm1', yearMonth: '2026-09', sortOrder: 9 })];
+    const transactions = [
+      tx({ id: '1', monthId: 'm1', txDate: '2026-09-02', expenseName: 'Икеа', expenseAmount: 9000, categoryId: 'home' }),
+      tx({ id: '2', monthId: 'm1', txDate: '2026-09-03', expenseName: 'Пятёрочка', expenseAmount: 700, categoryId: 'food' }),
+      tx({ id: '3', monthId: 'm1', txDate: '2026-09-04', expenseName: 'Пятёрочка', expenseAmount: 300, categoryId: 'food' }),
+      tx({
+        id: '4',
+        monthId: 'm1',
+        txDate: '2026-09-05',
+        expenseName: 'Перевод',
+        expenseAmount: 50_000,
+        categoryId: 'food',
+        operationKind: 'transfer',
+        targetAccountId: 'shared_card',
+      }),
+    ];
+    const [row] = monthlyExpenseByCategory(transactions, months, [FOOD, HOME], '2026');
+    expect(row.total).toBe(10_000);
+    expect(row.items.map((item) => item.categoryId)).toEqual(['home', 'food']);
+    expect(row.items[0].entries).toEqual([{ name: 'Икеа', amount: 9000, count: 1 }]);
+    expect(row.items[1].amount).toBe(1000);
+    expect(row.items[1].entries).toEqual([{ name: 'Пятёрочка', amount: 1000, count: 2 }]);
   });
 });

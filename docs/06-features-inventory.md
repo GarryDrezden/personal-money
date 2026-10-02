@@ -94,6 +94,7 @@
 | — Anomaly detection | ✅ | |
 | — Negative delta | ✅ | |
 | Top expense names | ✅ | |
+| Разворот категории → траты по имени | ✅ | MonthlyCategoryExpenses, merge same names |
 | Top income sources | ✅ | |
 | Credit card stats | ✅ | |
 | Export reports | ❌ | |
