@@ -21,6 +21,7 @@ import {
   isInternalTransfer,
   txAmount,
 } from './transactionRules';
+import { mergeReceiptItems, parseReceiptText } from './receiptParse';
 
 export {
   isCountedAsExpense,
@@ -593,6 +594,7 @@ export interface CategoryExpenseEntry {
   name: string;
   amount: number;
   count: number;
+  receiptItems?: CategoryExpenseEntry[];
 }
 
 export interface MonthCategoryExpenseItem {
@@ -614,24 +616,33 @@ function expenseDisplayName(tx: Transaction): string {
   return name || UNNAMED_EXPENSE;
 }
 
-/** Складывает траты с одинаковым названием (без учёта регистра и пробелов по краям). */
+/** Складывает траты с одинаковым названием (trim, без учёта регистра). */
 export function groupExpensesByName(transactions: Transaction[]): CategoryExpenseEntry[] {
-  const map = new Map<string, CategoryExpenseEntry>();
+  const map = new Map<
+    string,
+    { name: string; amount: number; count: number; receiptRaw: { name: string; amount: number }[] }
+  >();
   for (const tx of transactions) {
     const display = expenseDisplayName(tx);
     const key = display.toLowerCase();
     const amount = toAmount(tx.expenseAmount);
+    const receiptItems = parseReceiptText(tx.receiptText).items;
     const prev = map.get(key);
     if (prev) {
       prev.amount += amount;
       prev.count += 1;
+      prev.receiptRaw.push(...receiptItems);
     } else {
-      map.set(key, { name: display, amount, count: 1 });
+      map.set(key, { name: display, amount, count: 1, receiptRaw: [...receiptItems] });
     }
   }
-  return [...map.values()].sort(
-    (a, b) => b.amount - a.amount || a.name.localeCompare(b.name, 'ru'),
-  );
+  return [...map.values()]
+    .map(({ receiptRaw, ...rest }) => {
+      const entry: CategoryExpenseEntry = rest;
+      if (receiptRaw.length) entry.receiptItems = mergeReceiptItems(receiptRaw);
+      return entry;
+    })
+    .sort((a, b) => b.amount - a.amount || a.name.localeCompare(b.name, 'ru'));
 }
 
 /** Траты по категориям для каждого месяца года (по дате операции). */
@@ -674,6 +685,47 @@ export function monthlyExpenseByCategory(
       items,
     };
   });
+}
+
+export interface MonthReceiptItemsRow {
+  monthId: string;
+  yearMonth: string;
+  total: number;
+  storeCount: number;
+  items: CategoryExpenseEntry[];
+}
+
+/** Позиции из текстов чеков за каждый месяц года. */
+export function monthlyReceiptItems(
+  transactions: Transaction[],
+  months: BudgetMonth[],
+  year: string,
+): MonthReceiptItemsRow[] {
+  const yearMonths = months
+    .filter((m) => m.yearMonth.startsWith(year))
+    .sort((a, b) => b.sortOrder - a.sortOrder);
+
+  return yearMonths
+    .map((month) => {
+      const monthTx = getMonthTransactions(transactions, month.id, months).filter(isCountedAsExpense);
+      const raw: { name: string; amount: number }[] = [];
+      let storeCount = 0;
+      for (const tx of monthTx) {
+        const parsed = parseReceiptText(tx.receiptText);
+        if (!parsed.items.length) continue;
+        storeCount += 1;
+        raw.push(...parsed.items);
+      }
+      const items = mergeReceiptItems(raw);
+      return {
+        monthId: month.id,
+        yearMonth: month.yearMonth,
+        total: items.reduce((sum, item) => sum + item.amount, 0),
+        storeCount,
+        items,
+      };
+    })
+    .filter((row) => row.items.length > 0);
 }
 
 export function averageMonthlyExpenses(summaries: MonthSummary[]): number {

@@ -75,6 +75,7 @@ export interface Transaction {
   operationKind: OperationKind;
   paymentStatus: PaymentStatus;
   note: string;
+  receiptText: string;
 }
 
 export interface MonthCategoryTotal {

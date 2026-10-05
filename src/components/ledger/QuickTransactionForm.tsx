@@ -13,10 +13,12 @@ import type { QuickFormPrefs } from '../../types';
 import { useBudgetStore } from '../../store/budgetStore';
 import { categoryName } from '../../utils/budget';
 import { suggestCategory } from '../../utils/categorize';
+import { parseReceiptText } from '../../utils/receiptParse';
 import { AccountSelect } from '../shared/AccountSelect';
 import { CategorySelect } from '../shared/CategorySelect';
 import { CategoryIcon } from '../shared/CategoryIcon';
 import { MoneyInput } from '../shared/MoneyInput';
+import { ReceiptTextField } from './ReceiptTextField';
 
 type OpType = QuickFormPrefs['operationType'];
 
@@ -93,11 +95,13 @@ export function QuickTransactionForm({ monthId, compact = false }: QuickTransact
   const [name, setName] = useState('');
   const [amount, setAmount] = useState('');
   const [note, setNote] = useState('');
+  const [receiptText, setReceiptText] = useState('');
   const [busy, setBusy] = useState(false);
   const [advancedOpen, setAdvancedOpen] = useState(false);
   const [noteOpen, setNoteOpen] = useState(false);
   const [selectedLoanId, setSelectedLoanId] = useState('');
   const categoryTouched = useRef(false);
+  const receiptDateApplied = useRef(false);
   const amountRef = useRef<HTMLInputElement>(null);
   const nameRef = useRef<HTMLInputElement>(null);
 
@@ -141,6 +145,19 @@ export function QuickTransactionForm({ monthId, compact = false }: QuickTransact
     setQuickForm({ categoryId: id });
   };
 
+  const applyReceiptParse = (parsed: ReturnType<typeof parseReceiptText>) => {
+    if (parsed.store && !name.trim()) setName(parsed.store);
+    if (parsed.total != null && !amount.trim()) setAmount(String(parsed.total).replace('.', ','));
+    if (parsed.date && !receiptDateApplied.current) {
+      setQuickForm({ txDate: parsed.date });
+      receiptDateApplied.current = true;
+    }
+    if (parsed.store && !categoryTouched.current) {
+      const cat = suggestCategory(parsed.store, transactions);
+      if (cat) setQuickForm({ categoryId: cat });
+    }
+  };
+
   const applySuggestion = () => {
     if (!suggestedCategoryId) return;
     categoryTouched.current = false;
@@ -159,6 +176,7 @@ export function QuickTransactionForm({ monthId, compact = false }: QuickTransact
       const base = {
         txDate: quickForm.txDate,
         note,
+        receiptText: opType === 'expense' ? receiptText : '',
         paymentStatus: 'done' as const,
       };
 
@@ -235,6 +253,9 @@ export function QuickTransactionForm({ monthId, compact = false }: QuickTransact
 
       setAmount('');
       setName('');
+      setNote('');
+      setReceiptText('');
+      receiptDateApplied.current = false;
       categoryTouched.current = false;
       nameRef.current?.focus();
     } catch (e) {
@@ -420,6 +441,15 @@ export function QuickTransactionForm({ monthId, compact = false }: QuickTransact
               />
             </label>
           )}
+        </div>
+      )}
+      {opType === 'expense' && (
+        <div className="quick-entry-field quick-entry-field--receipt">
+          <ReceiptTextField
+            value={receiptText}
+            onChange={setReceiptText}
+            onParsed={applyReceiptParse}
+          />
         </div>
       )}
     </div>

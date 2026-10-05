@@ -3,6 +3,7 @@ import { ChevronDown, ChevronRight } from 'lucide-react';
 import { formatYearMonth } from '../../constants/categories';
 import {
   formatMoney,
+  type CategoryExpenseEntry,
   type MonthCategoryExpenseItem,
   type MonthCategoryExpenseRow,
 } from '../../utils/budget';
@@ -12,6 +13,74 @@ function toggleKey(open: Set<string>, key: string): Set<string> {
   if (next.has(key)) next.delete(key);
   else next.add(key);
   return next;
+}
+
+function ReceiptLines({ items }: { items: CategoryExpenseEntry[] }) {
+  return (
+    <ul className="ml-5 mt-1 space-y-1 border-l border-[var(--app-border)] pl-3">
+      {items.map((entry) => (
+        <li key={entry.name} className="flex justify-between gap-2 text-[var(--app-text-muted)]">
+          <span className="min-w-0">
+            {entry.name}
+            {entry.count > 1 && <span className="ml-1 text-xs opacity-80">×{entry.count}</span>}
+          </span>
+          <span className="shrink-0 font-medium text-[var(--app-danger)]">
+            {formatMoney(entry.amount)}
+          </span>
+        </li>
+      ))}
+    </ul>
+  );
+}
+
+function StoreEntry({
+  entry,
+  open,
+  onToggle,
+}: {
+  entry: CategoryExpenseEntry;
+  open: boolean;
+  onToggle: () => void;
+}) {
+  const nested = entry.receiptItems;
+  if (!nested?.length) {
+    return (
+      <li className="flex justify-between gap-2 text-[var(--app-text-muted)]">
+        <span className="min-w-0">
+          {entry.name}
+          {entry.count > 1 && <span className="ml-1 text-xs opacity-80">×{entry.count}</span>}
+        </span>
+        <span className="shrink-0 font-medium text-[var(--app-danger)]">
+          {formatMoney(entry.amount)}
+        </span>
+      </li>
+    );
+  }
+
+  return (
+    <li>
+      <button
+        type="button"
+        className="-mx-1 flex w-[calc(100%+0.5rem)] items-center gap-1.5 rounded-md px-1 py-0.5 text-left text-[var(--app-text-muted)] hover:bg-[var(--app-bg-soft)]"
+        aria-expanded={open}
+        onClick={onToggle}
+      >
+        {open ? (
+          <ChevronDown className="shrink-0 text-[var(--app-primary)]" size={14} />
+        ) : (
+          <ChevronRight className="shrink-0 text-[var(--app-primary)]" size={14} />
+        )}
+        <span className="min-w-0 flex-1 truncate">
+          {entry.name}
+          <span className="ml-1 text-xs opacity-80">чек, {nested.length} поз.</span>
+        </span>
+        <span className="shrink-0 font-medium text-[var(--app-danger)]">
+          {formatMoney(entry.amount)}
+        </span>
+      </button>
+      {open && <ReceiptLines items={nested} />}
+    </li>
+  );
 }
 
 function CategoryExpenseRow({
@@ -26,6 +95,7 @@ function CategoryExpenseRow({
   onToggle: () => void;
 }) {
   const panelId = `category-expenses-${monthId}-${item.categoryId}`;
+  const [openStores, setOpenStores] = useState<Set<string>>(new Set());
 
   return (
     <li>
@@ -48,19 +118,17 @@ function CategoryExpenseRow({
       </button>
       {open && (
         <ul id={panelId} className="ml-5 mt-1 space-y-1 border-l border-[var(--app-border)] pl-3">
-          {item.entries.map((entry) => (
-            <li key={entry.name} className="flex justify-between gap-2 text-[var(--app-text-muted)]">
-              <span className="min-w-0">
-                {entry.name}
-                {entry.count > 1 && (
-                  <span className="ml-1 text-xs opacity-80">×{entry.count}</span>
-                )}
-              </span>
-              <span className="shrink-0 font-medium text-[var(--app-danger)]">
-                {formatMoney(entry.amount)}
-              </span>
-            </li>
-          ))}
+          {item.entries.map((entry) => {
+            const key = entry.name;
+            return (
+              <StoreEntry
+                key={entry.name}
+                entry={entry}
+                open={openStores.has(key)}
+                onToggle={() => setOpenStores((prev) => toggleKey(prev, key))}
+              />
+            );
+          })}
         </ul>
       )}
     </li>

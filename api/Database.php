@@ -352,6 +352,8 @@ class Database
 
             'payment_status' => "TEXT NOT NULL DEFAULT 'done'",
 
+            'receipt_text' => 'TEXT',
+
         ];
 
         foreach ($txCols as $col => $def) {
@@ -941,6 +943,8 @@ function rowToTransaction(array $row): array
         'paymentStatus' => $row['payment_status'] ?? 'done',
 
         'note' => $row['note'] ?? '',
+
+        'receiptText' => $row['receipt_text'] ?? '',
 
     ];
 

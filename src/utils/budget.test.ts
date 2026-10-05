@@ -153,6 +153,24 @@ describe('groupExpensesByName', () => {
       { name: UNNAMED_EXPENSE, amount: 150, count: 2 },
     ]);
   });
+
+  it('attaches parsed receipt items under the store name', () => {
+    const transactions = [
+      tx({
+        id: '1',
+        monthId: 'm1',
+        expenseName: 'Глобус',
+        expenseAmount: 12129,
+        receiptText: 'Глобус\nМолоко — 100,00 ₽\nМолоко — 50,00 ₽\nХлеб — 80,00 руб.\nИтого 230,00',
+      }),
+    ];
+    const [row] = groupExpensesByName(transactions);
+    expect(row.name).toBe('Глобус');
+    expect(row.receiptItems).toEqual([
+      { name: 'Молоко', amount: 150, count: 2 },
+      { name: 'Хлеб', amount: 80, count: 1 },
+    ]);
+  });
 });
 
 describe('monthlyExpenseByCategory', () => {

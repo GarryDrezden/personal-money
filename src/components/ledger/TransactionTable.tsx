@@ -9,6 +9,7 @@ import { CategorySelect } from '../shared/CategorySelect';
 import { CategoryLabel } from '../shared/CategoryIcon';
 import { TX_KIND_LABELS, useDebouncedTransaction } from './useDebouncedTransaction';
 import { TransactionCards } from './TransactionCards';
+import { ReceiptTextField } from './ReceiptTextField';
 
 const KIND_LABELS = TX_KIND_LABELS;
 const TransactionRow = memo(function TransactionRow({
@@ -31,7 +32,12 @@ const TransactionRow = memo(function TransactionRow({
       ? draft.expenseAmount
       : draft.incomeAmount;
 
+  const showReceipt =
+    draft.operationKind === 'regular' &&
+    ((draft.expenseAmount ?? 0) > 0 || Boolean(draft.receiptText) || Boolean(draft.expenseName));
+
   return (
+    <>
     <tr className={draft.paymentStatus === 'ignored' ? 'opacity-50' : ''}>
       <td className="ledger-col-date">
         <input
@@ -123,6 +129,18 @@ const TransactionRow = memo(function TransactionRow({
         </button>
       </td>
     </tr>
+    {showReceipt && (
+      <tr className={draft.paymentStatus === 'ignored' ? 'opacity-50' : ''}>
+        <td colSpan={10} className="pb-3 pt-0">
+          <ReceiptTextField
+            value={draft.receiptText ?? ''}
+            onChange={(receiptText) => setDraft({ ...draft, receiptText })}
+            defaultOpen={Boolean(draft.receiptText)}
+          />
+        </td>
+      </tr>
+    )}
+    </>
   );
 });
 

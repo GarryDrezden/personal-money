@@ -660,6 +660,10 @@ body {
   color: var(--app-primary);
 }
 
+.quick-entry-field--receipt {
+  grid-column: 1 / -1;
+}
+
 .quick-entry-submit {
   display: flex;
   width: 100%;

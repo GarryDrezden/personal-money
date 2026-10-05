@@ -115,6 +115,7 @@ npm run test:run    # CI one-shot
 | P1 | `getCategoryMonthSummary` | limits, limitStatus |
 | P2 | `creditDebtAmount` / reconcile | available vs debt |
 | P1 | `groupExpensesByName` / `monthlyExpenseByCategory` | merge names, sort desc, skip transfers |
+| P1 | `parseReceiptText` | Globus, Perekrestok, dashed list, merge names |
 | P2 | `analyticsInsights.ts` | MoM %, forecast |
 | P3 | `categorize.ts` | keyword → categoryId |
 | P3 | API integration | auth + CRUD smoke |

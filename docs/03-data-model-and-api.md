@@ -82,6 +82,7 @@
 | operation_kind | VARCHAR(32) | См. ниже |
 | payment_status | VARCHAR(16) | `done` \| `planned` \| `ignored` |
 | note | TEXT | Комментарий |
+| receipt_text | TEXT NULL | Сырой текст чека (вставка из GPT/PDF) |
 
 **operation_kind:**
 - `regular` — обычный расход/доход

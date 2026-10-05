@@ -69,6 +69,7 @@ CREATE TABLE IF NOT EXISTS transactions (
   `operation_kind` VARCHAR(32) NOT NULL DEFAULT 'regular',
   `payment_status` VARCHAR(16) NOT NULL DEFAULT 'done',
   `note` TEXT NOT NULL,
+  `receipt_text` TEXT NULL,
   KEY idx_transactions_month (`month_id`, `sort_order`),
   KEY idx_transactions_account (`account_id`),
   KEY idx_transactions_category (`category_id`),

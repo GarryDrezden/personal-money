@@ -95,6 +95,8 @@
 | — Negative delta | ✅ | |
 | Top expense names | ✅ | |
 | Разворот категории → траты по имени | ✅ | MonthlyCategoryExpenses, merge same names |
+| Текст чека у расхода | ✅ | вставка, разбор позиций Глобус/Перекрёсток/список |
+| Покупки из чеков | ✅ | ReceiptPurchases, merge same product names |
 | Top income sources | ✅ | |
 | Credit card stats | ✅ | |
 | Export reports | ❌ | |

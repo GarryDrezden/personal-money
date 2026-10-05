@@ -51,6 +51,7 @@ CREATE TABLE IF NOT EXISTS transactions (
   operation_kind TEXT NOT NULL DEFAULT 'regular',
   payment_status TEXT NOT NULL DEFAULT 'done',
   note TEXT NOT NULL DEFAULT '',
+  receipt_text TEXT NOT NULL DEFAULT '',
   FOREIGN KEY (month_id) REFERENCES budget_months(id) ON DELETE CASCADE
 );
 

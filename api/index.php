@@ -870,6 +870,8 @@ if ($uri === '/transactions/bulk-update' && $method === 'POST') {
 
         'note' => 'note',
 
+        'receiptText' => 'receipt_text',
+
     ];
 
     $sets = [];

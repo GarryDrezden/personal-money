@@ -15,6 +15,7 @@ export function tx(partial: Partial<Transaction> & Pick<Transaction, 'id' | 'mon
     operationKind: 'regular',
     paymentStatus: 'done',
     note: '',
+    receiptText: '',
     ...partial,
   };
 }

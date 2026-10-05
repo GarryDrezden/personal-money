@@ -92,6 +92,7 @@ function normalizeTransactionInput(array $body): array
         'operation_kind' => $kind,
         'payment_status' => $status,
         'note' => (string) ($body['note'] ?? ''),
+        'receipt_text' => (string) ($body['receiptText'] ?? ''),
     ];
 }
 
@@ -106,12 +107,12 @@ function transactionHasData(array $tx): bool
 function insertTransactionFields(): string
 {
     return 'id, month_id, sort_order, tx_date, expense_name, expense_amount, income_source, income_amount,
-            category, account_id, target_account_id, category_id, operation_kind, payment_status, note';
+            category, account_id, target_account_id, category_id, operation_kind, payment_status, note, receipt_text';
 }
 
 function insertTransactionPlaceholders(): string
 {
-    return ':id, :mid, :so, :td, :en, :ea, :is, :ia, :cat, :aid, :taid, :cid, :ok, :ps, :note';
+    return ':id, :mid, :so, :td, :en, :ea, :is, :ia, :cat, :aid, :taid, :cid, :ok, :ps, :note, :rt';
 }
 
 function bindTransactionParams(array $tx, array $extra): array
@@ -129,6 +130,7 @@ function bindTransactionParams(array $tx, array $extra): array
         'ok' => $tx['operation_kind'],
         'ps' => $tx['payment_status'],
         'note' => $tx['note'],
+        'rt' => $tx['receipt_text'] ?? '',
     ], $extra);
 }
 
@@ -137,7 +139,7 @@ function updateTransactionSet(): string
     return 'month_id = :mid, tx_date = :td, expense_name = :en, expense_amount = :ea,
             income_source = :is, income_amount = :ia, category = :cat,
             account_id = :aid, target_account_id = :taid, category_id = :cid,
-            operation_kind = :ok, payment_status = :ps, note = :note';
+            operation_kind = :ok, payment_status = :ps, note = :note, receipt_text = :rt';
 }
 
 function ensureBudgetMonth(PDO $pdo, Database $db, string $userId, string $yearMonth): array

@@ -26,6 +26,7 @@ import {
   getUncategorizedTransactions,
   isInternalTransfer,
   monthlyExpenseByCategory,
+  monthlyReceiptItems,
   mostExpensiveMonth,
   topExpenseNames,
   topIncomeSources,
@@ -35,6 +36,7 @@ import { formatYearMonth } from '../constants/categories';
 import { getPrimaryCreditAccount } from '../utils/accounts';
 import { AnalyticsInsightsPanel } from '../components/analytics/AnalyticsInsightsPanel';
 import { MonthlyCategoryExpenses } from '../components/analytics/MonthlyCategoryExpenses';
+import { ReceiptPurchases } from '../components/analytics/ReceiptPurchases';
 import { Card } from '../components/ui/Card';
 import { PageHeader } from '../components/ui/PageHeader';
 import { AccountSelect } from '../components/shared/AccountSelect';
@@ -71,6 +73,11 @@ export function AnalyticsPage() {
   const monthlyCategoryExpenses = useMemo(
     () => monthlyExpenseByCategory(transactions, months, categories, year),
     [transactions, months, categories, year],
+  );
+
+  const receiptPurchases = useMemo(
+    () => monthlyReceiptItems(transactions, months, year),
+    [transactions, months, year],
   );
 
   const yearSummaries = useMemo(
@@ -281,6 +288,11 @@ export function AnalyticsPage() {
       <Card>
         <h2 className="mb-3 font-semibold">Траты по категориям ({year})</h2>
         <MonthlyCategoryExpenses year={year} months={monthlyCategoryExpenses} />
+      </Card>
+
+      <Card>
+        <h2 className="mb-3 font-semibold">Покупки из чеков ({year})</h2>
+        <ReceiptPurchases year={year} months={receiptPurchases} />
       </Card>
 
       <div className="grid gap-4 lg:grid-cols-2">
