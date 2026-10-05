@@ -150,6 +150,8 @@ class Database
 
             $this->ensureLoansTable();
 
+            $this->ensureReceiptTextColumn();
+
             return;
 
         }
@@ -169,6 +171,34 @@ class Database
         $this->migrateMultiUser();
 
         $this->ensureLoansTable();
+
+        $this->ensureReceiptTextColumn();
+
+    }
+
+
+
+    private function ensureReceiptTextColumn(): void
+
+    {
+
+        if (!$this->tableExists('transactions') || $this->columnExists('transactions', 'receipt_text')) {
+
+            return;
+
+        }
+
+        try {
+            if ($this->isMysql()) {
+                $this->pdo->exec('ALTER TABLE transactions ADD COLUMN `receipt_text` TEXT NULL');
+            } else {
+                $this->pdo->exec("ALTER TABLE transactions ADD COLUMN receipt_text TEXT DEFAULT NULL");
+            }
+        } catch (Throwable) {
+            if (!$this->columnExists('transactions', 'receipt_text')) {
+                throw new RuntimeException('Не удалось добавить колонку receipt_text');
+            }
+        }
 
     }
 

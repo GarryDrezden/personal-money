@@ -9,7 +9,7 @@ import { CategorySelect } from '../shared/CategorySelect';
 import { CategoryLabel } from '../shared/CategoryIcon';
 import { TX_KIND_LABELS, useDebouncedTransaction } from './useDebouncedTransaction';
 import { TransactionCards } from './TransactionCards';
-import { ReceiptTextField } from './ReceiptTextField';
+import { ReceiptEditorButton } from './ReceiptTextField';
 
 const KIND_LABELS = TX_KIND_LABELS;
 const TransactionRow = memo(function TransactionRow({
@@ -37,7 +37,6 @@ const TransactionRow = memo(function TransactionRow({
     ((draft.expenseAmount ?? 0) > 0 || Boolean(draft.receiptText) || Boolean(draft.expenseName));
 
   return (
-    <>
     <tr className={draft.paymentStatus === 'ignored' ? 'opacity-50' : ''}>
       <td className="ledger-col-date">
         <input
@@ -110,7 +109,13 @@ const TransactionRow = memo(function TransactionRow({
       <td className="text-xs">
         <CategoryLabel categoryId={draft.categoryId} iconSize={14} />
       </td>
-      <td className="w-20 whitespace-nowrap">
+      <td className="w-24 whitespace-nowrap">
+        {showReceipt && (
+          <ReceiptEditorButton
+            value={draft.receiptText ?? ''}
+            onChange={(receiptText) => setDraft({ ...draft, receiptText })}
+          />
+        )}
         <button
           type="button"
           className="rounded p-1 hover:bg-[var(--app-bg-soft)]"
@@ -129,18 +134,6 @@ const TransactionRow = memo(function TransactionRow({
         </button>
       </td>
     </tr>
-    {showReceipt && (
-      <tr className={draft.paymentStatus === 'ignored' ? 'opacity-50' : ''}>
-        <td colSpan={10} className="pb-3 pt-0">
-          <ReceiptTextField
-            value={draft.receiptText ?? ''}
-            onChange={(receiptText) => setDraft({ ...draft, receiptText })}
-            defaultOpen={Boolean(draft.receiptText)}
-          />
-        </td>
-      </tr>
-    )}
-    </>
   );
 });
 

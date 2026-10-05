@@ -92,7 +92,9 @@ function normalizeTransactionInput(array $body): array
         'operation_kind' => $kind,
         'payment_status' => $status,
         'note' => (string) ($body['note'] ?? ''),
-        'receipt_text' => (string) ($body['receiptText'] ?? ''),
+        'receipt_text' => isset($body['receiptText']) && trim((string) $body['receiptText']) !== ''
+            ? (string) $body['receiptText']
+            : null,
     ];
 }
 
@@ -130,7 +132,7 @@ function bindTransactionParams(array $tx, array $extra): array
         'ok' => $tx['operation_kind'],
         'ps' => $tx['payment_status'],
         'note' => $tx['note'],
-        'rt' => $tx['receipt_text'] ?? '',
+        'rt' => $tx['receipt_text'] ?: null,
     ], $extra);
 }
 

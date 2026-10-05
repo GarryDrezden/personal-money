@@ -736,15 +736,15 @@ if ($uri === '/transactions' && $method === 'POST') {
 
     $sql = 'INSERT INTO transactions (' . insertTransactionFields() . ') VALUES (' . insertTransactionPlaceholders() . ')';
 
-    $pdo->prepare($sql)->execute(bindTransactionParams($tx, [
-
-        'id' => $id,
-
-        'mid' => $monthId,
-
-        'so' => $maxSort + 1,
-
-    ]));
+    try {
+        $pdo->prepare($sql)->execute(bindTransactionParams($tx, [
+            'id' => $id,
+            'mid' => $monthId,
+            'so' => $maxSort + 1,
+        ]));
+    } catch (Throwable $e) {
+        jsonError('Не удалось сохранить операцию: ' . $e->getMessage(), 500);
+    }
 
     $stmt = $pdo->prepare('SELECT * FROM transactions WHERE id = :id');
 
@@ -786,11 +786,13 @@ if (preg_match('#^/transactions/([^/]+)$#', $uri, $m) && $method === 'PUT') {
 
     $monthId = resolveTransactionMonthId($pdo, $db, $userId, $fallbackMonthId, $tx['tx_date']);
 
-    $pdo->prepare('UPDATE transactions SET ' . updateTransactionSet() . ' WHERE id = :id')->execute(
-
-        bindTransactionParams($tx, ['id' => $m[1], 'mid' => $monthId]),
-
-    );
+    try {
+        $pdo->prepare('UPDATE transactions SET ' . updateTransactionSet() . ' WHERE id = :id')->execute(
+            bindTransactionParams($tx, ['id' => $m[1], 'mid' => $monthId]),
+        );
+    } catch (Throwable $e) {
+        jsonError('Не удалось сохранить операцию: ' . $e->getMessage(), 500);
+    }
 
     $stmt = $pdo->prepare('SELECT * FROM transactions WHERE id = :id');
 

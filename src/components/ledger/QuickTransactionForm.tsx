@@ -18,7 +18,7 @@ import { AccountSelect } from '../shared/AccountSelect';
 import { CategorySelect } from '../shared/CategorySelect';
 import { CategoryIcon } from '../shared/CategoryIcon';
 import { MoneyInput } from '../shared/MoneyInput';
-import { ReceiptTextField } from './ReceiptTextField';
+import { ReceiptEditorButton } from './ReceiptTextField';
 
 type OpType = QuickFormPrefs['operationType'];
 
@@ -176,8 +176,10 @@ export function QuickTransactionForm({ monthId, compact = false }: QuickTransact
       const base = {
         txDate: quickForm.txDate,
         note,
-        receiptText: opType === 'expense' ? receiptText : '',
         paymentStatus: 'done' as const,
+        ...(opType === 'expense' && receiptText.trim()
+          ? { receiptText: receiptText.trim() }
+          : {}),
       };
 
       if (opType === 'expense') {
@@ -443,15 +445,6 @@ export function QuickTransactionForm({ monthId, compact = false }: QuickTransact
           )}
         </div>
       )}
-      {opType === 'expense' && (
-        <div className="quick-entry-field quick-entry-field--receipt">
-          <ReceiptTextField
-            value={receiptText}
-            onChange={setReceiptText}
-            onParsed={applyReceiptParse}
-          />
-        </div>
-      )}
     </div>
   );
 
@@ -496,6 +489,16 @@ export function QuickTransactionForm({ monthId, compact = false }: QuickTransact
               <span className="quick-entry-currency">₽</span>
             </div>
           </label>
+          {opType === 'expense' && (
+            <div className="quick-entry-receipt-icon">
+              <ReceiptEditorButton
+                value={receiptText}
+                onChange={setReceiptText}
+                onParsed={applyReceiptParse}
+                size={18}
+              />
+            </div>
+          )}
         </div>
         {suggestionChip}
         {detailsFields}
@@ -548,6 +551,16 @@ export function QuickTransactionForm({ monthId, compact = false }: QuickTransact
             <span className="quick-entry-currency">₽</span>
           </div>
         </label>
+        {opType === 'expense' && (
+          <div className="quick-entry-receipt-icon">
+            <ReceiptEditorButton
+              value={receiptText}
+              onChange={setReceiptText}
+              onParsed={applyReceiptParse}
+              size={18}
+            />
+          </div>
+        )}
       </div>
 
       {suggestionChip}

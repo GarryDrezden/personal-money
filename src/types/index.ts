@@ -75,7 +75,8 @@ export interface Transaction {
   operationKind: OperationKind;
   paymentStatus: PaymentStatus;
   note: string;
-  receiptText: string;
+  /** Текст чека; пусто, если чека нет. */
+  receiptText?: string;
 }
 
 export interface MonthCategoryTotal {

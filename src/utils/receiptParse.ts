@@ -181,6 +181,31 @@ export function parseReceiptText(text: string | null | undefined): ReceiptParseR
   };
 }
 
+export function formatReceiptAmount(value: number): string {
+  return value.toFixed(2).replace('.', ',');
+}
+
+export function formatReceiptDate(iso: string | null | undefined): string | null {
+  if (!iso || !/^\d{4}-\d{2}-\d{2}$/.test(iso)) return null;
+  const [y, m, d] = iso.split('-');
+  return `${d}.${m}.${y}`;
+}
+
+export function serializeReceipt(parsed: ReceiptParseResult): string {
+  const lines: string[] = [];
+  if (parsed.store?.trim()) lines.push(parsed.store.trim());
+  const dateLine = formatReceiptDate(parsed.date);
+  if (dateLine) lines.push(dateLine);
+  for (const item of parsed.items) {
+    if (!item.name.trim() || item.amount <= 0) continue;
+    lines.push(`${item.name.trim()} — ${formatReceiptAmount(item.amount)}`);
+  }
+  if (parsed.total != null && parsed.total > 0) {
+    lines.push(`Итого ${formatReceiptAmount(parsed.total)}`);
+  }
+  return lines.join('\n');
+}
+
 export function receiptPreviewLabel(parsed: ReceiptParseResult): string | null {
   if (!parsed.items.length && parsed.total == null && !parsed.store) return null;
   const parts: string[] = [];

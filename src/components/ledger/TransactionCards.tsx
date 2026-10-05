@@ -9,7 +9,7 @@ import { CategorySelect } from '../shared/CategorySelect';
 import { CategoryIcon } from '../shared/CategoryIcon';
 import { TransactionAmount } from '../shared/TransactionAmount';
 import { TX_KIND_LABELS, useDebouncedTransaction } from './useDebouncedTransaction';
-import { ReceiptTextField } from './ReceiptTextField';
+import { ReceiptEditorButton } from './ReceiptTextField';
 
 const TransactionCard = memo(function TransactionCard({
   tx,
@@ -89,23 +89,22 @@ const TransactionCard = memo(function TransactionCard({
         />
       </div>
 
-      {(draft.operationKind === 'regular' &&
-        ((draft.expenseAmount ?? 0) > 0 || Boolean(draft.receiptText) || Boolean(draft.expenseName))) && (
-        <div className="mt-2">
-          <ReceiptTextField
-            value={draft.receiptText ?? ''}
-            onChange={(receiptText) => setDraft({ ...draft, receiptText })}
-            defaultOpen={Boolean(draft.receiptText)}
-          />
-        </div>
-      )}
-
       <div className="ledger-tx-card-footer">
         <span className="text-xs text-[var(--app-text-muted)]">
           {accountName(accounts, draft.accountId)} ·{' '}
           {TX_KIND_LABELS[draft.operationKind] ?? draft.operationKind}
         </span>
         <div className="flex gap-1">
+          {draft.operationKind === 'regular' &&
+            ((draft.expenseAmount ?? 0) > 0 ||
+              Boolean(draft.receiptText) ||
+              Boolean(draft.expenseName)) && (
+              <ReceiptEditorButton
+                value={draft.receiptText ?? ''}
+                onChange={(receiptText) => setDraft({ ...draft, receiptText })}
+                size={16}
+              />
+            )}
           <button
             type="button"
             className="rounded-lg p-2 hover:bg-[var(--app-bg-soft)]"

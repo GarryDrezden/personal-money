@@ -660,8 +660,11 @@ body {
   color: var(--app-primary);
 }
 
-.quick-entry-field--receipt {
-  grid-column: 1 / -1;
+.quick-entry-receipt-icon {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  padding-bottom: 0.4rem;
 }
 
 .quick-entry-submit {

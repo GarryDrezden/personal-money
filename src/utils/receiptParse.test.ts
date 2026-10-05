@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import globus from '../test/receipts/globus.txt?raw';
 import perek from '../test/receipts/perekrestok.txt?raw';
-import { parseReceiptText, receiptPreviewLabel } from './receiptParse';
+import { parseReceiptText, receiptPreviewLabel, serializeReceipt } from './receiptParse';
 
 describe('parseReceiptText', () => {
   it('parses Globus loyalty receipt: store, date, total, merged items', () => {
@@ -47,5 +47,30 @@ describe('parseReceiptText', () => {
     expect(label).toContain('Глобус');
     expect(label).toContain('04.10.2026');
     expect(label).toContain('позиц');
+  });
+});
+
+describe('serializeReceipt', () => {
+  it('round-trips a dashed list', () => {
+    const text = serializeReceipt({
+      store: 'Глобус',
+      date: '2026-10-04',
+      total: 186.15,
+      items: [
+        { name: 'Молоко', amount: 106.15, count: 1 },
+        { name: 'Хлеб', amount: 80, count: 1 },
+      ],
+    });
+    expect(text).toBe(
+      ['Глобус', '04.10.2026', 'Молоко — 106,15', 'Хлеб — 80,00', 'Итого 186,15'].join('\n'),
+    );
+    const parsed = parseReceiptText(text);
+    expect(parsed.store).toBe('Глобус');
+    expect(parsed.date).toBe('2026-10-04');
+    expect(parsed.total).toBe(186.15);
+    expect(parsed.items).toEqual([
+      { name: 'Молоко', amount: 106.15, count: 1 },
+      { name: 'Хлеб', amount: 80, count: 1 },
+    ]);
   });
 });
