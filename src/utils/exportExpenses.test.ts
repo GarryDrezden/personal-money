@@ -1,6 +1,18 @@
 import { describe, expect, it } from 'vitest';
-import { collectYearExpenses, yearExpenseDateRange } from './exportExpenses';
-import { month, tx } from '../test/fixtures';
+import { collectYearExpenses, expensesToCsv, yearExpenseDateRange } from './exportExpenses';
+import { MAIN_ACCOUNT, month, tx } from '../test/fixtures';
+import type { Category } from '../types';
+
+const FOOD: Category = {
+  id: 'food',
+  name: 'Еда',
+  type: 'expense',
+  color: null,
+  icon: null,
+  monthlyLimit: null,
+  isActive: true,
+  sortOrder: 1,
+};
 
 describe('exportExpenses', () => {
   it('limits current year to today', () => {
@@ -37,5 +49,60 @@ describe('exportExpenses', () => {
       today: new Date('2026-08-10'),
     });
     expect(result.map((t) => t.id)).toEqual(['1', '2']);
+  });
+
+  it('adds empty receipt columns when there is no receipt', () => {
+    const csv = expensesToCsv(
+      [
+        tx({
+          id: '1',
+          monthId: 'm1',
+          txDate: '2026-01-15',
+          expenseName: 'Кофе',
+          expenseAmount: 150,
+          categoryId: 'food',
+        }),
+      ],
+      [month({ id: 'm1', yearMonth: '2026-01' })],
+      [MAIN_ACCOUNT],
+      [FOOD],
+    );
+    const lines = csv.replace(/^\uFEFF/, '').split('\r\n');
+    expect(lines[0]).toBe(
+      'Дата;Название;Сумма;Категория;Счёт;Заметка;Магазин;Позиции чека;Итого чека;Текст чека',
+    );
+    expect(lines[1]).toBe('2026-01-15;Кофе;150;Еда;Основная карта;;;;;');
+  });
+
+  it('exports parsed receipt store, items, total and raw text', () => {
+    const receipt = [
+      'Глобус',
+      'Молоко — 100,00 ₽',
+      'Молоко — 50,00 ₽',
+      'Хлеб — 80,00 руб.',
+      'Итого 230,00',
+    ].join('\n');
+    const csv = expensesToCsv(
+      [
+        tx({
+          id: '1',
+          monthId: 'm1',
+          txDate: '2026-10-04',
+          expenseName: 'Глобус',
+          expenseAmount: 230,
+          categoryId: 'food',
+          receiptText: receipt,
+        }),
+      ],
+      [month({ id: 'm1', yearMonth: '2026-10' })],
+      [MAIN_ACCOUNT],
+      [FOOD],
+    );
+    const row = csv.replace(/^\uFEFF/, '').split('\r\n')[1];
+    expect(row).toContain('Глобус');
+    expect(row).toContain('Молоко ×2 — 150,00');
+    expect(row).toContain('Хлеб — 80,00');
+    expect(row).toContain('230,00');
+    expect(row).toContain('Итого 230,00');
   });
 });

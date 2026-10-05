@@ -6,6 +6,7 @@ import {
   isCountedAsExpense,
   transactionYearMonth,
 } from './budget';
+import { formatReceiptAmount, parseReceiptText } from './receiptParse';
 
 export function yearExpenseDateRange(
   year: string,
@@ -68,13 +69,49 @@ function csvEscape(value: string): string {
   return value;
 }
 
+function receiptCsvFields(tx: Transaction): {
+  store: string;
+  items: string;
+  total: string;
+  text: string;
+} {
+  const text = tx.receiptText?.trim() ?? '';
+  if (!text) {
+    return { store: '', items: '', total: '', text: '' };
+  }
+  const parsed = parseReceiptText(text);
+  const items = parsed.items
+    .map((item) => {
+      const name = item.count > 1 ? `${item.name} ×${item.count}` : item.name;
+      return `${name} — ${formatReceiptAmount(item.amount)}`;
+    })
+    .join(' | ');
+  return {
+    store: parsed.store ?? '',
+    items,
+    total: parsed.total != null ? formatReceiptAmount(parsed.total) : '',
+    text,
+  };
+}
+
 export function expensesToCsv(
   transactions: Transaction[],
   months: BudgetMonth[],
   accounts: Account[],
   categories: Category[],
 ): string {
-  const header = ['Дата', 'Название', 'Сумма', 'Категория', 'Счёт', 'Заметка'];
+  const header = [
+    'Дата',
+    'Название',
+    'Сумма',
+    'Категория',
+    'Счёт',
+    'Заметка',
+    'Магазин',
+    'Позиции чека',
+    'Итого чека',
+    'Текст чека',
+  ];
   const rows = transactions.map((tx) => {
     const date = txDateKey(tx, months) ?? '';
     const name = tx.expenseName ?? '';
@@ -82,7 +119,21 @@ export function expensesToCsv(
     const cat = categoryName(categories, tx.categoryId) || tx.category || '';
     const acc = accountName(accounts, tx.accountId);
     const note = tx.note ?? '';
-    return [date, name, amount, cat, acc, note].map((v) => csvEscape(String(v))).join(';');
+    const receipt = receiptCsvFields(tx);
+    return [
+      date,
+      name,
+      amount,
+      cat,
+      acc,
+      note,
+      receipt.store,
+      receipt.items,
+      receipt.total,
+      receipt.text,
+    ]
+      .map((v) => csvEscape(String(v)))
+      .join(';');
   });
   return `\uFEFF${[header.join(';'), ...rows].join('\r\n')}`;
 }
