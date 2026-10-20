@@ -1,5 +1,10 @@
 import { describe, expect, it } from 'vitest';
-import { collectYearExpenses, expensesToCsv, yearExpenseDateRange } from './exportExpenses';
+import {
+  collectYearExpenses,
+  expenseDateRange,
+  expensesToCsv,
+  yearExpenseDateRange,
+} from './exportExpenses';
 import { MAIN_ACCOUNT, month, tx } from '../test/fixtures';
 import type { Category } from '../types';
 
@@ -49,6 +54,34 @@ describe('exportExpenses', () => {
       today: new Date('2026-08-10'),
     });
     expect(result.map((t) => t.id)).toEqual(['1', '2']);
+  });
+
+  it('uses the full past month and caps the current month at today', () => {
+    const today = new Date('2026-10-20');
+    expect(expenseDateRange('2026', { today, yearMonth: '2026-08' })).toEqual({
+      from: '2026-08-01',
+      to: '2026-08-31',
+    });
+    expect(expenseDateRange('2026', { today, yearMonth: '2026-10' })).toEqual({
+      from: '2026-10-01',
+      to: '2026-10-20',
+    });
+  });
+
+  it('collects only the selected month', () => {
+    const months = [
+      month({ id: 'm1', yearMonth: '2026-01', sortOrder: 1 }),
+      month({ id: 'm2', yearMonth: '2026-08', sortOrder: 2 }),
+    ];
+    const transactions = [
+      tx({ id: '1', monthId: 'm1', txDate: '2026-01-15', expenseName: 'A', expenseAmount: 100 }),
+      tx({ id: '2', monthId: 'm2', txDate: '2026-08-05', expenseName: 'B', expenseAmount: 200 }),
+    ];
+    const result = collectYearExpenses(transactions, months, '2026', {
+      today: new Date('2026-10-20'),
+      yearMonth: '2026-08',
+    });
+    expect(result.map((t) => t.id)).toEqual(['2']);
   });
 
   it('adds empty receipt columns when there is no receipt', () => {

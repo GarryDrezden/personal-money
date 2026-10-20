@@ -8,18 +8,50 @@ import {
 } from './budget';
 import { formatReceiptAmount, parseReceiptText } from './receiptParse';
 
+function isoDate(d: Date): string {
+  const m = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${d.getFullYear()}-${m}-${day}`;
+}
+
+function lastDayOfMonth(yearMonth: string): string {
+  const [y, m] = yearMonth.split('-').map(Number);
+  const last = new Date(y, m, 0).getDate();
+  return `${yearMonth}-${String(last).padStart(2, '0')}`;
+}
+
+function currentYearMonth(today: Date): string {
+  return `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}`;
+}
+
+/** Диапазон дат для CSV: весь год или один месяц. Текущий период обрезается сегодняшним днём. */
+export function expenseDateRange(
+  year: string,
+  options?: { today?: Date; yearMonth?: string },
+): { from: string; to: string } {
+  const today = options?.today ?? new Date();
+  const todayKey = isoDate(today);
+  const ym = options?.yearMonth;
+  if (ym && /^\d{4}-\d{2}$/.test(ym)) {
+    const from = `${ym}-01`;
+    const toFull = lastDayOfMonth(ym);
+    if (ym === currentYearMonth(today) && todayKey < toFull) {
+      return { from, to: todayKey };
+    }
+    return { from, to: toFull };
+  }
+  const from = `${year}-01-01`;
+  if (year === String(today.getFullYear())) {
+    return { from, to: todayKey };
+  }
+  return { from, to: `${year}-12-31` };
+}
+
 export function yearExpenseDateRange(
   year: string,
   today = new Date(),
 ): { from: string; to: string } {
-  const from = `${year}-01-01`;
-  const currentYear = String(today.getFullYear());
-  if (year === currentYear) {
-    const m = String(today.getMonth() + 1).padStart(2, '0');
-    const d = String(today.getDate()).padStart(2, '0');
-    return { from, to: `${currentYear}-${m}-${d}` };
-  }
-  return { from, to: `${year}-12-31` };
+  return expenseDateRange(year, { today });
 }
 
 function txDateKey(tx: Transaction, months: BudgetMonth[]): string | null {
@@ -36,9 +68,13 @@ export function collectYearExpenses(
     accountId?: string;
     categoryId?: string;
     today?: Date;
+    yearMonth?: string;
   },
 ): Transaction[] {
-  const { from, to } = yearExpenseDateRange(year, options?.today);
+  const { from, to } = expenseDateRange(year, {
+    today: options?.today,
+    yearMonth: options?.yearMonth,
+  });
   const monthById = new Map(months.map((m) => [m.id, m]));
 
   return transactions
@@ -50,7 +86,9 @@ export function collectYearExpenses(
       const date = txDateKey(tx, months);
       if (!date) {
         const month = monthById.get(tx.monthId);
-        return Boolean(month?.yearMonth.startsWith(year));
+        if (!month) return false;
+        if (options?.yearMonth) return month.yearMonth === options.yearMonth;
+        return month.yearMonth.startsWith(year);
       }
       return date >= from && date <= to;
     })
@@ -156,13 +194,16 @@ export function downloadYearExpensesCsv(params: {
   categories: Category[];
   accountId?: string;
   categoryId?: string;
+  yearMonth?: string;
 }): { count: number; from: string; to: string } {
-  const { from, to } = yearExpenseDateRange(params.year);
+  const { from, to } = expenseDateRange(params.year, { yearMonth: params.yearMonth });
   const expenses = collectYearExpenses(params.transactions, params.months, params.year, {
     accountId: params.accountId || undefined,
     categoryId: params.categoryId || undefined,
+    yearMonth: params.yearMonth,
   });
   const csv = expensesToCsv(expenses, params.months, params.accounts, params.categories);
-  downloadTextFile(`traty-${params.year}-${from}_${to}.csv`, csv);
+  const stamp = params.yearMonth ?? params.year;
+  downloadTextFile(`traty-${stamp}-${from}_${to}.csv`, csv);
   return { count: expenses.length, from, to };
 }

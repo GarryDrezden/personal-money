@@ -31,8 +31,8 @@ import {
   topExpenseNames,
   topIncomeSources,
 } from '../utils/budget';
-import { downloadYearExpensesCsv, yearExpenseDateRange } from '../utils/exportExpenses';
-import { formatYearMonth } from '../constants/categories';
+import { downloadYearExpensesCsv, expenseDateRange } from '../utils/exportExpenses';
+import { MONTH_LABELS, formatYearMonth } from '../constants/categories';
 import { getPrimaryCreditAccount } from '../utils/accounts';
 import { AnalyticsInsightsPanel } from '../components/analytics/AnalyticsInsightsPanel';
 import { MonthlyCategoryExpenses } from '../components/analytics/MonthlyCategoryExpenses';
@@ -67,8 +67,14 @@ export function AnalyticsPage() {
     [months],
   );
   const [year, setYear] = useState(years[years.length - 1] ?? String(new Date().getFullYear()));
+  const [exportMonth, setExportMonth] = useState('');
   const [accountFilter, setAccountFilter] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('');
+  const exportMonths = useMemo(
+    () =>
+      [...new Set(months.filter((m) => m.yearMonth.startsWith(year)).map((m) => m.yearMonth))].sort(),
+    [months, year],
+  );
 
   const monthlyCategoryExpenses = useMemo(
     () => monthlyExpenseByCategory(transactions, months, categories, year),
@@ -155,8 +161,9 @@ export function AnalyticsPage() {
 
   const activeAccounts = accounts.filter((a) => a.isActive && a.type !== 'credit');
 
-  const exportRange = yearExpenseDateRange(year);
+  const exportRange = expenseDateRange(year, { yearMonth: exportMonth || undefined });
   const isCurrentYear = year === String(new Date().getFullYear());
+  const exportLabel = exportMonth ? formatYearMonth(exportMonth) : year;
 
   const handleExportExpenses = () => {
     const result = downloadYearExpensesCsv({
@@ -167,9 +174,10 @@ export function AnalyticsPage() {
       categories,
       accountId: accountFilter || undefined,
       categoryId: categoryFilter || undefined,
+      yearMonth: exportMonth || undefined,
     });
     if (result.count === 0) {
-      window.alert(`Нет расходов за ${year} (${result.from} — ${result.to})`);
+      window.alert(`Нет расходов за ${exportLabel} (${result.from} — ${result.to})`);
     }
   };
 
@@ -188,9 +196,31 @@ export function AnalyticsPage() {
         <div className="flex flex-wrap items-end gap-2">
           <label className="flex flex-col gap-1 text-sm">
             Год
-            <select className="money-input min-w-[100px]" value={year} onChange={(e) => setYear(e.target.value)}>
+            <select
+              className="money-input min-w-[100px]"
+              value={year}
+              onChange={(e) => {
+                setYear(e.target.value);
+                setExportMonth('');
+              }}
+            >
               {years.map((y) => (
                 <option key={y} value={y}>{y}</option>
+              ))}
+            </select>
+          </label>
+          <label className="flex flex-col gap-1 text-sm">
+            Период CSV
+            <select
+              className="money-input min-w-[140px]"
+              value={exportMonth}
+              onChange={(e) => setExportMonth(e.target.value)}
+            >
+              <option value="">Весь год</option>
+              {exportMonths.map((ym) => (
+                <option key={ym} value={ym}>
+                  {MONTH_LABELS[Number(ym.slice(5))] ?? ym}
+                </option>
               ))}
             </select>
           </label>
@@ -206,18 +236,19 @@ export function AnalyticsPage() {
             type="button"
             onClick={handleExportExpenses}
             className="btn-primary inline-flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm"
-            title={
-              isCurrentYear
-                ? `Траты с ${exportRange.from} по ${exportRange.to}`
-                : `Траты за весь ${year} год`
-            }
+            title={`Траты с ${exportRange.from} по ${exportRange.to}`}
           >
             <Download size={16} />
-            Выгрузить траты {year}
+            Выгрузить {exportLabel}
           </button>
         </div>
         <p className="mt-2 text-xs text-[var(--app-text-muted)]">
-          CSV: {isCurrentYear ? `январь — сегодня (${exportRange.to})` : `январь — декабрь ${year}`}
+          CSV:{' '}
+          {exportMonth
+            ? `${formatYearMonth(exportMonth)} (${exportRange.from} — ${exportRange.to})`
+            : isCurrentYear
+              ? `январь — сегодня (${exportRange.to})`
+              : `январь — декабрь ${year}`}
           {(accountFilter || categoryFilter) && ' · с учётом фильтров'}
         </p>
       </PageHeader>
