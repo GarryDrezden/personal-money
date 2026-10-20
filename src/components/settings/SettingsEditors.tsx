@@ -1,6 +1,7 @@
 import { useState } from 'react';
-import { Plus, Trash2 } from 'lucide-react';
+import { ChevronDown, ChevronUp, Plus, Trash2 } from 'lucide-react';
 import type { Account, AccountType, Category, CategoryType, Loan } from '../../types';
+import { moveItem } from '../../utils/sortOrder';
 import { useBudgetStore } from '../../store/budgetStore';
 import { formatMoney } from '../../utils/budget';
 import { Card } from '../ui/Card';
@@ -333,16 +334,85 @@ export function AccountsEditor() {
   );
 }
 
+function CategoryOrderGroup({
+  title,
+  items,
+  moving,
+  onEdit,
+  onMove,
+}: {
+  title: string;
+  items: Category[];
+  moving: boolean;
+  onEdit: (category: Category) => void;
+  onMove: (index: number, dir: -1 | 1) => void;
+}) {
+  if (!items.length) return null;
+  return (
+    <div>
+      <h3 className="mb-2 text-xs font-medium uppercase tracking-wide text-[var(--app-text-muted)]">
+        {title}
+      </h3>
+      <div className="grid gap-2">
+        {items.map((cat, index) => (
+          <div
+            key={cat.id}
+            className="flex items-center gap-1 rounded-xl border border-[var(--app-border)] p-1.5"
+          >
+            <button
+              type="button"
+              onClick={() => onEdit(cat)}
+              className="flex min-w-0 flex-1 items-center gap-3 rounded-lg p-1.5 text-left transition-colors hover:bg-[var(--app-bg-soft)]"
+            >
+              <CategoryIcon categoryId={cat.id} size={20} />
+              <div className="min-w-0 flex-1">
+                <p className="truncate font-medium">{cat.name}</p>
+                <p className="text-xs text-[var(--app-text-muted)]">
+                  {CATEGORY_TYPE_LABELS[cat.type]}
+                  {cat.monthlyLimit != null &&
+                    ` · лимит ${cat.monthlyLimit.toLocaleString('ru-RU')} ₽`}
+                </p>
+              </div>
+            </button>
+            <div className="flex shrink-0 flex-col">
+              <button
+                type="button"
+                aria-label="Выше"
+                disabled={moving || index === 0}
+                onClick={() => onMove(index, -1)}
+                className="rounded-md p-1 text-[var(--app-text-muted)] hover:bg-[var(--app-bg-soft)] hover:text-[var(--app-text)] disabled:opacity-30"
+              >
+                <ChevronUp size={16} />
+              </button>
+              <button
+                type="button"
+                aria-label="Ниже"
+                disabled={moving || index === items.length - 1}
+                onClick={() => onMove(index, 1)}
+                className="rounded-md p-1 text-[var(--app-text-muted)] hover:bg-[var(--app-bg-soft)] hover:text-[var(--app-text)] disabled:opacity-30"
+              >
+                <ChevronDown size={16} />
+              </button>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 export function CategoriesEditor() {
   const categories = useBudgetStore((s) => s.categories);
   const saveCategory = useBudgetStore((s) => s.saveCategory);
   const deleteCategory = useBudgetStore((s) => s.deleteCategory);
+  const reorderCategories = useBudgetStore((s) => s.reorderCategories);
 
   const [modal, setModal] = useState<
     { mode: 'create' } | { mode: 'edit'; category: Category } | null
   >(null);
   const [draft, setDraft] = useState<CategoryDraft>(emptyCategoryDraft());
   const [saving, setSaving] = useState(false);
+  const [moving, setMoving] = useState(false);
 
   const openCreate = () => {
     setDraft(emptyCategoryDraft());
@@ -390,7 +460,20 @@ export function CategoriesEditor() {
 
   const userCategories = categories
     .filter((c) => c.isActive && c.type !== 'system')
-    .sort((a, b) => a.sortOrder - b.sortOrder);
+    .sort((a, b) => a.sortOrder - b.sortOrder || a.name.localeCompare(b.name, 'ru'));
+  const expenseCategories = userCategories.filter((c) => c.type === 'expense');
+  const incomeCategories = userCategories.filter((c) => c.type === 'income');
+
+  const handleMove = async (list: Category[], index: number, dir: -1 | 1) => {
+    const next = moveItem(list, index, dir);
+    if (!next) return;
+    setMoving(true);
+    try {
+      await reorderCategories(next.map((c) => c.id));
+    } finally {
+      setMoving(false);
+    }
+  };
 
   return (
     <Card>
@@ -398,7 +481,7 @@ export function CategoriesEditor() {
         <div>
           <h2 className="font-semibold">Категории</h2>
           <p className="mt-0.5 text-sm text-[var(--app-text-muted)]">
-            Расходы и доходы с иконками и лимитами
+            Расходы и доходы с иконками и лимитами. Стрелки меняют порядок в списках и подсказках.
           </p>
         </div>
         <button
@@ -411,24 +494,21 @@ export function CategoriesEditor() {
         </button>
       </div>
 
-      <div className="mt-4 grid gap-2 sm:grid-cols-2">
-        {userCategories.map((cat) => (
-          <button
-            key={cat.id}
-            type="button"
-            onClick={() => openEdit(cat)}
-            className="flex items-center gap-3 rounded-xl border border-[var(--app-border)] p-3 text-left transition-colors hover:border-[var(--app-primary)] hover:bg-[var(--app-bg-soft)]"
-          >
-            <CategoryIcon categoryId={cat.id} size={20} />
-            <div className="min-w-0 flex-1">
-              <p className="truncate font-medium">{cat.name}</p>
-              <p className="text-xs text-[var(--app-text-muted)]">
-                {CATEGORY_TYPE_LABELS[cat.type]}
-                {cat.monthlyLimit != null && ` · лимит ${cat.monthlyLimit.toLocaleString('ru-RU')} ₽`}
-              </p>
-            </div>
-          </button>
-        ))}
+      <div className="mt-4 grid gap-6 lg:grid-cols-2">
+        <CategoryOrderGroup
+          title="Расходы"
+          items={expenseCategories}
+          moving={moving}
+          onEdit={openEdit}
+          onMove={(index, dir) => void handleMove(expenseCategories, index, dir)}
+        />
+        <CategoryOrderGroup
+          title="Доходы"
+          items={incomeCategories}
+          moving={moving}
+          onEdit={openEdit}
+          onMove={(index, dir) => void handleMove(incomeCategories, index, dir)}
+        />
       </div>
 
       {modal && (
@@ -443,7 +523,7 @@ export function CategoriesEditor() {
                 className="money-input"
                 value={draft.name}
                 onChange={(e) => setDraft((d) => ({ ...d, name: e.target.value }))}
-                placeholder="Еда"
+                placeholder="Продукты"
                 autoFocus
               />
             </label>

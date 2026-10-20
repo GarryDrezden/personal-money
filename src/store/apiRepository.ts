@@ -117,6 +117,12 @@ export const apiRepository = {
   deleteCategory: (id: string) =>
     request<{ ok: boolean }>(`${API}/categories/${id}`, { method: 'DELETE' }),
 
+  reorderCategories: (ids: string[]) =>
+    request<{ ok: boolean }>(`${API}/categories/reorder`, {
+      method: 'POST',
+      body: JSON.stringify({ ids }),
+    }),
+
   saveLoan: (loan: Partial<Loan> & { id?: string }) =>
     loan.id
       ? request<Loan>(`${API}/loans/${loan.id}`, {

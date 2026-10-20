@@ -114,6 +114,7 @@
 | CRUD категорий | ✅ | Бюджет |
 | — monthly limit | ✅ | |
 | — expense/income types | ✅ | |
+| — ручной порядок | ✅ | стрелки в Настройках |
 | Import Excel | ✅ | Данные |
 | Re-import (force) | ✅ | reset + import |
 | Initial opening balance | ✅ | Данные |

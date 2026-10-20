@@ -284,6 +284,62 @@ if ($uri === '/categories' && $method === 'GET') {
 
 
 
+// POST /categories/reorder
+
+if ($uri === '/categories/reorder' && $method === 'POST') {
+
+    $ids = getJsonBody()['ids'] ?? [];
+
+    if (!is_array($ids) || $ids === []) {
+
+        jsonError('ids required');
+
+    }
+
+    $ids = array_values(array_map('strval', $ids));
+
+    foreach ($ids as $id) {
+
+        if (!categoryBelongsToUser($pdo, $id, $userId)) {
+
+            jsonError('Category not found', 404);
+
+        }
+
+    }
+
+    $placeholders = implode(',', array_fill(0, count($ids), '?'));
+
+    $stmt = $pdo->prepare(
+        "SELECT sort_order FROM categories WHERE user_id = ? AND id IN ({$placeholders})",
+    );
+
+    $stmt->execute(array_merge([$userId], $ids));
+
+    $orders = array_map('intval', array_column($stmt->fetchAll(), 'sort_order'));
+
+    sort($orders, SORT_NUMERIC);
+
+    $upd = $pdo->prepare(
+        'UPDATE categories SET sort_order = :so, updated_at = CURRENT_TIMESTAMP WHERE id = :id AND user_id = :uid',
+    );
+
+    foreach ($ids as $i => $id) {
+
+        $upd->execute([
+            'so' => $orders[$i] ?? ($i + 1),
+            'id' => $id,
+            'uid' => $userId,
+        ]);
+
+    }
+
+    jsonResponse(['ok' => true]);
+
+}
+
+
+
 // POST /categories
 
 if ($uri === '/categories' && $method === 'POST') {

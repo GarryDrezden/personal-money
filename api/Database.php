@@ -245,7 +245,7 @@ class Database
             );
             $update = $this->pdo->prepare(
                 'UPDATE categories SET name = :name, `type` = :type, color = :color, icon = :icon,
-                        is_active = 1, sort_order = :so WHERE id = :id',
+                        is_active = 1 WHERE id = :id',
             );
         } else {
             $insert = $this->pdo->prepare(
@@ -254,7 +254,7 @@ class Database
             );
             $update = $this->pdo->prepare(
                 'UPDATE categories SET name = :name, `type` = :type, color = :color, icon = :icon,
-                        is_active = 1, sort_order = :so WHERE id = :id',
+                        is_active = 1 WHERE id = :id',
             );
         }
 
@@ -273,6 +273,7 @@ class Database
             ];
             $select->execute(['id' => $id]);
             if ($select->fetch()) {
+                unset($fields['so']);
                 $update->execute($fields);
             } else {
                 if ($hasUser) {

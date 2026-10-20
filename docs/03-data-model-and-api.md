@@ -129,6 +129,7 @@ Base URL: `/api`. Формат: JSON. Auth: session cookie (`credentials: 'inclu
 | GET/POST | `/accounts` | Список / создание |
 | PUT/DELETE | `/accounts/{id}` | Обновление / soft-close |
 | GET/POST | `/categories` | Список / создание |
+| POST | `/categories/reorder` | `{ ids }` — порядок внутри группы, `sort_order` переставляется |
 | PUT/DELETE | `/categories/{id}` | Обновление / deactivate |
 | GET/POST | `/months` | Список / ensure month `{ yearMonth }` |
 | PUT | `/months/{id}/categories` | `{ totals: [{ category, amount }] }` |

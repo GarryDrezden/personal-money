@@ -102,6 +102,7 @@ interface BudgetState extends BudgetData {
   deleteAccount: (id: string) => Promise<void>;
   saveCategory: (category: Partial<Category> & { id?: string }) => Promise<void>;
   deleteCategory: (id: string) => Promise<void>;
+  reorderCategories: (orderedIds: string[]) => Promise<void>;
   saveLoan: (loan: Partial<Loan> & { id?: string }) => Promise<void>;
   deleteLoan: (id: string) => Promise<void>;
   importFile: (file: File, force?: boolean) => Promise<void>;
@@ -402,6 +403,27 @@ export const useBudgetStore = create<BudgetState>((set, get) => ({
       categories: get().categories.map((c) => (c.id === id ? { ...c, isActive: false } : c)),
     });
     get().showToast('Категория удалена');
+  },
+
+  reorderCategories: async (orderedIds) => {
+    const current = get().categories;
+    const group = orderedIds
+      .map((id) => current.find((c) => c.id === id))
+      .filter((c): c is Category => Boolean(c));
+    if (group.length < 2) return;
+    const orders = group.map((c) => c.sortOrder).sort((a, b) => a - b);
+    const nextOrders = new Map(orderedIds.map((id, i) => [id, orders[i] ?? i + 1]));
+    set({
+      categories: current.map((c) =>
+        nextOrders.has(c.id) ? { ...c, sortOrder: nextOrders.get(c.id)! } : c,
+      ),
+    });
+    try {
+      await apiRepository.reorderCategories(orderedIds);
+    } catch (error) {
+      set({ categories: current });
+      get().showToast((error as Error).message || 'Не удалось изменить порядок', 'error');
+    }
   },
 
   saveLoan: async (loan) => {
