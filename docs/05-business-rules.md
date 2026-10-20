@@ -109,6 +109,8 @@ remaining = monthlyLimit - amount
 - Keyword matching по `expense_name` / `income_source`
 - API: `POST /transactions/suggest-category`
 - QuickTransactionForm показывает подсказку live
+- Расходные категории: Кредиты, Продукты, Готовая еда, Дом и быт, Ремонт / стройка, Животные, Транспорт, Коммуналка и связь, Подписки и сервисы, Игры и развлечения, Одежда / личное, Книги / хобби, Здоровье, Подарки, Прочее
+- Старые id `car` → Транспорт, `entertainment` → Игры и развлечения, `alcohol`/`marketplace` → Прочее; сами id отключаются
 
 ---
 

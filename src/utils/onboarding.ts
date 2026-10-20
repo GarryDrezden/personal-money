@@ -29,8 +29,9 @@ export function shouldShowOnboarding(
 
 export const DEFAULT_ONBOARDING_EXPENSE_IDS = [
   'food',
+  'dining',
   'monthly',
   'transport',
-  'entertainment',
+  'games',
   'other',
 ] as const;

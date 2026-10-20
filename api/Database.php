@@ -152,6 +152,8 @@ class Database
 
             $this->ensureReceiptTextColumn();
 
+            $this->syncSeedCategories();
+
             return;
 
         }
@@ -173,6 +175,8 @@ class Database
         $this->ensureLoansTable();
 
         $this->ensureReceiptTextColumn();
+
+        $this->syncSeedCategories();
 
     }
 
@@ -200,6 +204,102 @@ class Database
             }
         }
 
+    }
+
+
+
+    private function syncSeedCategories(): void
+    {
+        if (!$this->tableExists('categories')) {
+            return;
+        }
+
+        $seedPath = __DIR__ . '/seed-categories.json';
+        if (!is_readable($seedPath)) {
+            return;
+        }
+        $seed = json_decode((string) file_get_contents($seedPath), true);
+        if (!is_array($seed) || $seed === []) {
+            return;
+        }
+
+        $userId = null;
+        if ($this->columnExists('categories', 'user_id')) {
+            $userId = $this->pdo->query(
+                "SELECT user_id FROM categories WHERE user_id IS NOT NULL AND user_id != '' LIMIT 1",
+            )->fetchColumn();
+        }
+        if (!$userId && $this->tableExists('users')) {
+            $userId = $this->pdo->query('SELECT id FROM users LIMIT 1')->fetchColumn() ?: null;
+        }
+        if (!$userId) {
+            return;
+        }
+
+        $hasUser = $this->columnExists('categories', 'user_id');
+        $select = $this->pdo->prepare('SELECT id FROM categories WHERE id = :id');
+        if ($hasUser) {
+            $insert = $this->pdo->prepare(
+                'INSERT INTO categories (`id`, `user_id`, `name`, `type`, `color`, `icon`, `monthly_limit`, `is_active`, `sort_order`)
+                 VALUES (:id, :uid, :name, :type, :color, :icon, NULL, 1, :so)',
+            );
+            $update = $this->pdo->prepare(
+                'UPDATE categories SET name = :name, `type` = :type, color = :color, icon = :icon,
+                        is_active = 1, sort_order = :so WHERE id = :id',
+            );
+        } else {
+            $insert = $this->pdo->prepare(
+                'INSERT INTO categories (`id`, `name`, `type`, `color`, `icon`, `monthly_limit`, `is_active`, `sort_order`)
+                 VALUES (:id, :name, :type, :color, :icon, NULL, 1, :so)',
+            );
+            $update = $this->pdo->prepare(
+                'UPDATE categories SET name = :name, `type` = :type, color = :color, icon = :icon,
+                        is_active = 1, sort_order = :so WHERE id = :id',
+            );
+        }
+
+        foreach ($seed as $c) {
+            $id = (string) ($c['id'] ?? '');
+            if ($id === '') {
+                continue;
+            }
+            $fields = [
+                'id' => $id,
+                'name' => (string) $c['name'],
+                'type' => (string) $c['type'],
+                'color' => $c['color'] ?? null,
+                'icon' => $c['icon'] ?? null,
+                'so' => (int) ($c['sort_order'] ?? 0),
+            ];
+            $select->execute(['id' => $id]);
+            if ($select->fetch()) {
+                $update->execute($fields);
+            } else {
+                if ($hasUser) {
+                    $fields['uid'] = $userId;
+                }
+                $insert->execute($fields);
+            }
+        }
+
+        if ($this->tableExists('transactions') && $this->columnExists('transactions', 'category_id')) {
+            $remap = $this->pdo->prepare(
+                'UPDATE transactions SET category_id = :to WHERE category_id = :from',
+            );
+            foreach ([
+                'car' => 'transport',
+                'entertainment' => 'games',
+                'alcohol' => 'other',
+                'marketplace' => 'other',
+            ] as $from => $to) {
+                $remap->execute(['to' => $to, 'from' => $from]);
+            }
+        }
+
+        $deactivate = $this->pdo->prepare('UPDATE categories SET is_active = 0 WHERE id = :id');
+        foreach (['alcohol', 'car', 'entertainment', 'marketplace'] as $id) {
+            $deactivate->execute(['id' => $id]);
+        }
     }
 
 

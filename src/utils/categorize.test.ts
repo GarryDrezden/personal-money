@@ -26,6 +26,8 @@ describe('suggestCategory', () => {
 
   it('falls back to keyword rules when no history', () => {
     expect(suggestCategory('Пятерочка', [])).toBe('food');
+    expect(suggestCategory('KFC на Арбате', [])).toBe('dining');
+    expect(suggestCategory('Лукойл АЗС', [])).toBe('transport');
   });
 
   it('matches history ignoring ё/е and punctuation', () => {

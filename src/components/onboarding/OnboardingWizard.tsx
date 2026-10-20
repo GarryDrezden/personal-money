@@ -96,7 +96,7 @@ export function OnboardingWizard({ userId, onComplete }: OnboardingWizardProps) 
   const expenseCategories = useMemo(
     () =>
       categories
-        .filter((c) => c.type === 'expense')
+        .filter((c) => c.type === 'expense' && c.isActive)
         .sort((a, b) => a.sortOrder - b.sortOrder),
     [categories],
   );

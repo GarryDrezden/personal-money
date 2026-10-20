@@ -1,16 +1,19 @@
 import type { Transaction } from '../types';
 
 const RULES: { keywords: string[]; categoryId: string }[] = [
-  { keywords: ['пятерочка', 'пятёрочка', 'дикси', 'магнит', 'ашан', 'лента', 'вкусвилл', 'перекресток', 'перекрёсток', 'глобус'], categoryId: 'food' },
-  { keywords: ['ozon', 'озон', 'wildberries', 'вайлдберриз', 'яндекс маркет'], categoryId: 'marketplace' },
-  { keywords: ['ggsel', 'steam', 'playstation', 'xbox'], categoryId: 'games' },
-  { keywords: ['аптека', 'здрав', 'горздрав'], categoryId: 'health' },
-  { keywords: ['азс', 'лукойл', 'газпром', 'роснефть', 'бензин'], categoryId: 'car' },
-  { keywords: ['пиво', 'вино', 'красное белое', 'винлаб'], categoryId: 'alcohol' },
+  { keywords: ['шаурма', 'kfc', 'ресторан', 'кофейня', 'старбакс', 'starbucks', 'вкусно и точка', 'макдональдс', 'mcdonald', 'бургер кинг', 'яндекс еда', 'delivery club', 'додо', 'суши'], categoryId: 'dining' },
+  { keywords: ['пятерочка', 'пятёрочка', 'дикси', 'магнит', 'ашан', 'лента', 'вкусвилл', 'перекресток', 'перекрёсток', 'глобус', 'metro', 'spar', 'чижик', 'верный', 'самокат'], categoryId: 'food' },
+  { keywords: ['ggsel', 'steam', 'ps store', 'playstation', 'xbox', 'ps plus', 'кинопоиск', 'ivi'], categoryId: 'games' },
+  { keywords: ['аптека', 'здрав', 'горздрав', 'rigla'], categoryId: 'health' },
+  { keywords: ['азс', 'лукойл', 'газпром', 'роснефть', 'бензин', 'shell', 'автодор', 'мойка'], categoryId: 'transport' },
   { keywords: ['кредит', 'ипотека', 'сбер кредит', 'тиньков машина'], categoryId: 'credits' },
-  { keywords: ['мосэнерго', 'мегафон', 'бизби', 'жкх'], categoryId: 'monthly' },
+  { keywords: ['мосэнерго', 'мегафон', 'бизби', 'интернет', 'жкх', 'мтс', 'билайн', 'ростелеком', 'электричеств'], categoryId: 'monthly' },
+  { keywords: ['cursor', 'chatgpt', 'github', 'timeweb', 'beget', 'yandex cloud'], categoryId: 'subscriptions' },
+  { keywords: ['леруа', 'leroy', 'петрович', 'максидом', 'герметик'], categoryId: 'repair' },
+  { keywords: ['зоозавр', 'четыре лапы', 'четырёх лап', 'ветклиник', 'наполнитель'], categoryId: 'pets' },
+  { keywords: ['литрес', 'книжны'], categoryId: 'hobby' },
   { keywords: ['стануша'], categoryId: 'stanusha' },
-  { keywords: ['контур'], categoryId: 'salary' },
+  { keywords: ['контур', 'зарплат'], categoryId: 'salary' },
 ];
 
 export function normalizeTitle(title: string): string {
